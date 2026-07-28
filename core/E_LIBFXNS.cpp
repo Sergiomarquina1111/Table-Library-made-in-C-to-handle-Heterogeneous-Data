@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 extern void InitCollection(ElementArray* obj, int total)
 {
@@ -37,6 +38,179 @@ extern void InitCollection(ElementArray* obj, int total)
     }
 
     printf("[InitCollection] Collection initialized successfully (Capacity: %d, Active Count: %d).\n\n", obj->capacity, obj->count);
+}
+
+extern void PrintCollection(const ElementArray* obj)
+{
+    if (!obj || !obj->slots) {
+        printf("[PrintCollection] Error: Collection is uninitialized or NULL.\n");
+        return;
+    }
+
+    printf("\n========================================================================\n");
+    printf("  COLLECTION CONTENTS  |  Count: %-3d  |  Capacity: %-3d\n", obj->count, obj->capacity);
+    printf("========================================================================\n");
+
+    if (obj->count == 0) {
+        printf("  [Empty Collection]\n");
+        printf("------------------------------------------------------------------------\n\n");
+        return;
+    }
+
+    for (int i = 0; i < obj->count; i++) {
+        short type = obj->slots[i].type;
+        void* payload = obj->slots[i].ptr;
+
+        printf(" [%02d] ", i);
+
+        if (!payload) {
+            printf("[NULL PAYLOAD]\n");
+            continue;
+        }
+
+        switch (type) {
+
+            /* ==================== 1. PRIMITIVES ==================== */
+
+        case TYPE_INT:
+            printf("[TYPE_INT]              \t Value : %d\n", *(int*)payload);
+            break;
+
+        case TYPE_FLOAT:
+            printf("[TYPE_FLOAT]            \t Value : %.4f\n", *(float*)payload);
+            break;
+
+        case TYPE_DOUBLE:
+            printf("[TYPE_DOUBLE]           \t Value : %.6lf\n", *(double*)payload);
+            break;
+
+        case TYPE_CHAR:
+            printf("[TYPE_CHAR]             \t Value : '%c'\n", *(char*)payload);
+            break;
+
+        case TYPE_LONG:
+            printf("[TYPE_LONG]             \t Value : %ld\n", *(long*)payload);
+            break;
+
+        case TYPE_SHORT:
+            printf("[TYPE_SHORT]            \t Value : %d\n", *(short*)payload);
+            break;
+
+
+            /* ==================== 2. SINGLE POINTERS ==================== */
+
+        case TYPE_INT_STAR: {
+            int* p = *(int**)payload;
+            if (p)
+                printf("[TYPE_INT_STAR]        \t Addr  : %p -> Val: %d\n", (void*)p, *p);
+            else
+                printf("[TYPE_INT_STAR]        \t Addr  : NULL\n");
+            break;
+        }
+
+        case TYPE_FLOAT_STAR: {
+            float* p = *(float**)payload;
+            if (p)
+                printf("[TYPE_FLOAT_STAR]      \t Addr  : %p -> Val: %.4f\n", (void*)p, *p);
+            else
+                printf("[TYPE_FLOAT_STAR]      \t Addr  : NULL\n");
+            break;
+        }
+
+        case TYPE_CHAR_STAR: {
+            char* p = *(char**)payload;
+            if (p)
+                printf("[TYPE_CHAR_STAR]       \t Addr  : %p -> Val: '%c'\n", (void*)p, *p);
+            else
+                printf("[TYPE_CHAR_STAR]       \t Addr  : NULL\n");
+            break;
+        }
+
+        case TYPE_DOUBLE_STAR: {
+            double* p = *(double**)payload;
+            if (p)
+                printf("[TYPE_DOUBLE_STAR]     \t Addr  : %p -> Val: %.6lf\n", (void*)p, *p);
+            else
+                printf("[TYPE_DOUBLE_STAR]     \t Addr  : NULL\n");
+            break;
+        }
+
+        case TYPE_LONG_STAR: {
+            long* p = *(long**)payload;
+            if (p)
+                printf("[TYPE_LONG_STAR]       \t Addr  : %p -> Val: %ld\n", (void*)p, *p);
+            else
+                printf("[TYPE_LONG_STAR]       \t Addr  : NULL\n");
+            break;
+        }
+
+        case TYPE_SHORT_STAR: {
+            short* p = *(short**)payload;
+            if (p)
+                printf("[TYPE_SHORT_STAR]      \t Addr  : %p -> Val: %d\n", (void*)p, *p);
+            else
+                printf("[TYPE_SHORT_STAR]      \t Addr  : NULL\n");
+            break;
+        }
+
+        case TYPE_VOID_STAR: {
+            void* p = *(void**)payload;
+            printf("[TYPE_VOID_STAR]       \t Addr  : %p\n", p);
+            break;
+        }
+
+
+                           /* ==================== 3. DOUBLE POINTERS ==================== */
+
+        case TYPE_INT_STAR_DOUBLE: {
+            int** dp = *(int***)payload;
+            if (dp && *dp)
+                printf("[TYPE_INT_STAR_DOUBLE] \t Addr  : %p -> Val: %d\n", (void*)dp, **dp);
+            else
+                printf("[TYPE_INT_STAR_DOUBLE] \t Addr  : %p (Unresolvable)\n", (void*)dp);
+            break;
+        }
+
+        case TYPE_FLOAT_STAR_DOUBLE: {
+            float** dp = *(float***)payload;
+            if (dp && *dp)
+                printf("[TYPE_FLOAT_STAR_DOUBLE] \t Addr : %p -> Val: %.4f\n", (void*)dp, **dp);
+            else
+                printf("[TYPE_FLOAT_STAR_DOUBLE] \t Addr : %p (Unresolvable)\n", (void*)dp);
+            break;
+        }
+
+        case TYPE_CHAR_STAR_DOUBLE: {
+            char** dp = *(char***)payload;
+            if (dp && *dp)
+                printf("[TYPE_CHAR_STAR_DOUBLE] \t Addr  : %p -> Val: '%c'\n", (void*)dp, **dp);
+            else
+                printf("[TYPE_CHAR_STAR_DOUBLE] \t Addr  : %p (Unresolvable)\n", (void*)dp);
+            break;
+        }
+
+
+                                  /* ==================== 4. TRIPLE POINTERS ==================== */
+
+        case TYPE_INT_STAR_TRIPLE: {
+            int*** tp = *(int****)payload;
+            if (tp && *tp && **tp)
+                printf("[TYPE_INT_STAR_TRIPLE] \t Addr  : %p -> Val: %d\n", (void*)tp, ***tp);
+            else
+                printf("[TYPE_INT_STAR_TRIPLE] \t Addr  : %p (Unresolvable)\n", (void*)tp);
+            break;
+        }
+
+
+                                 /* ==================== DEFAULT / UNKNOWN ==================== */
+
+        default:
+            printf("[TYPE_UNKNOWN (%d)]  \t  Addr  : %p\n", type, payload);
+            break;
+        }
+    }
+
+    printf("------------------------------------------------------------------------\n\n");
 }
 
 extern bool push_element(ElementArray* obj, Element cobj) {
@@ -74,7 +248,9 @@ extern bool push_element(ElementArray* obj, Element cobj) {
 
     return true;
 }
-extern bool push_int_impl(ElementArray* obj, int val) {
+
+extern bool push_int_impl(ElementArray* obj, int val) 
+{
     int* ptr = (int*)malloc(sizeof(int));
     if (!ptr)
         return false;
@@ -84,7 +260,8 @@ extern bool push_int_impl(ElementArray* obj, int val) {
     return push_element(obj, node);
 }
 
-extern bool push_float_impl(ElementArray* obj, float val) {
+extern bool push_float_impl(ElementArray* obj, float val) 
+{
     float* ptr = (float*)malloc(sizeof(float));
     if (!ptr)
         return false;
@@ -94,7 +271,8 @@ extern bool push_float_impl(ElementArray* obj, float val) {
     return push_element(obj, node);
 }
 
-extern bool push_double_impl(ElementArray* obj, double val) {
+extern bool push_double_impl(ElementArray* obj, double val) 
+{
     double* ptr = (double*)malloc(sizeof(double));
     if (!ptr)
         return false;
@@ -104,7 +282,8 @@ extern bool push_double_impl(ElementArray* obj, double val) {
     return push_element(obj, node);
 }
 
-extern bool push_long_impl(ElementArray* obj, long val) {
+extern bool push_long_impl(ElementArray* obj, long val) 
+{
     long* ptr = (long*)malloc(sizeof(long));
     if (!ptr)
         return false;
@@ -114,7 +293,8 @@ extern bool push_long_impl(ElementArray* obj, long val) {
     return push_element(obj, node);
 }
 
-extern bool push_short_impl(ElementArray* obj, short val) {
+extern bool push_short_impl(ElementArray* obj, short val) 
+{
     short* ptr = (short*)malloc(sizeof(short));
     if (!ptr)
         return false;
@@ -124,7 +304,8 @@ extern bool push_short_impl(ElementArray* obj, short val) {
     return push_element(obj, node);
 }
 
-extern bool push_char_impl(ElementArray* obj, char val) {
+extern bool push_char_impl(ElementArray* obj, char val) 
+{
     char* ptr = (char*)malloc(sizeof(char));
     if (!ptr)
         return false;
@@ -132,6 +313,128 @@ extern bool push_char_impl(ElementArray* obj, char val) {
     *ptr = val;
     Element node = { ptr, TYPE_CHAR };
     return push_element(obj, node);
+}
+
+extern bool push_ptr_impl(ElementArray* obj, void* val, short pointer_type)
+{
+    void** ptr = (void**)malloc(sizeof(void*));
+
+    if (!ptr)
+        return false;
+
+    *ptr = val;
+
+    Element node = { ptr, pointer_type };
+    return push_element(obj, node);
+}
+
+extern bool push_dptr_impl(ElementArray* obj, void** val, short double_pointer_type)
+{
+    void*** ptr = (void***)malloc(sizeof(void**));
+    if (!ptr)
+        return false;
+
+    *ptr = val;
+
+    Element node = { ptr, double_pointer_type };
+    return push_element(obj, node);
+}
+
+extern bool push_tptr_impl(ElementArray* obj, void*** val, short triple_pointer_type)
+{
+    void**** ptr = (void****)malloc(sizeof(void***));
+    if (!ptr)
+        return false;
+
+    *ptr = val;
+
+    Element node = { ptr, triple_pointer_type };
+    return push_element(obj, node);
+}
+
+extern bool PUSH_LIST(ElementArray* obj, int count, ...)
+{
+    if (!obj || count <= 0)
+        return false;
+
+    va_list args;
+    va_start(args, count);
+
+    for (int i = 0; i < count; i++) {
+        
+        short type = (short)va_arg(args, int);
+
+        switch (type) {
+
+            /* --- PRIMITIVES --- */
+        case TYPE_INT:
+            push_int_impl(obj, va_arg(args, int));
+            break;
+
+        case TYPE_FLOAT:
+            // Note: float arguments promote to double in variadic functions
+            push_float_impl(obj, (float)va_arg(args, double));
+            break;
+
+        case TYPE_DOUBLE:
+            push_double_impl(obj, va_arg(args, double));
+            break;
+
+        case TYPE_CHAR:
+            push_char_impl(obj, (char)va_arg(args, int));
+            break;
+
+        case TYPE_LONG:
+            push_long_impl(obj, va_arg(args, long));
+            break;
+
+        case TYPE_SHORT:
+            push_short_impl(obj, (short)va_arg(args, int));
+            break;
+
+
+            /* --- SINGLE POINTERS --- */
+        case TYPE_INT_STAR:
+        case TYPE_FLOAT_STAR:
+        case TYPE_CHAR_STAR:
+        case TYPE_DOUBLE_STAR:
+        case TYPE_LONG_STAR:
+        case TYPE_SHORT_STAR:
+        case TYPE_VOID_STAR:
+            push_ptr_impl(obj, va_arg(args, void*), type);
+            break;
+
+
+            /* --- DOUBLE POINTERS --- */
+        case TYPE_INT_STAR_DOUBLE:
+        case TYPE_FLOAT_STAR_DOUBLE:
+        case TYPE_CHAR_STAR_DOUBLE:
+        case TYPE_DOUBLE_STAR_DOUBLE:
+        case TYPE_LONG_STAR_DOUBLE:
+        case TYPE_SHORT_STAR_DOUBLE:
+        case TYPE_VOID_STAR_DOUBLE:
+            push_dptr_impl(obj, va_arg(args, void**), type);
+            break;
+
+
+            /* --- TRIPLE POINTERS --- */
+        case TYPE_INT_STAR_TRIPLE:
+        case TYPE_FLOAT_STAR_TRIPLE:
+        case TYPE_CHAR_STAR_TRIPLE:
+        case TYPE_DOUBLE_STAR_TRIPLE:
+        case TYPE_LONG_STAR_TRIPLE:
+        case TYPE_SHORT_STAR_TRIPLE:
+        case TYPE_VOID_STAR_TRIPLE:
+            push_tptr_impl(obj, va_arg(args, void***), type);
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    va_end(args);
+    return true;
 }
 
 extern Element pop_element(ElementArray* obj)
