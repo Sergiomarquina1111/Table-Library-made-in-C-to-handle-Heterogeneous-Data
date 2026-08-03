@@ -1,6 +1,8 @@
 #ifndef E_DEFS_H
 #define E_DEFS_H
 
+#include <stdio.h>
+
 typedef enum DATA_TYPE
 {
 	TYPE_EMPTY,
@@ -48,6 +50,18 @@ typedef enum TRIPLE_POINTERS
 	TYPE_SHORT_STAR_TRIPLE,
 }TRIPLE_POINTERS;
 
+typedef enum USER_DEFINED
+{
+	TYPE_NULL_USER_DEFINED = 2000,
+	TYPE_STRUCT,
+	TYPE_UNION,
+	TYPE_STRUCT_PTR,
+	TYPE_UNION_PTR,
+	TYPE_FUNC_PTR,
+	TYPE_FILE_PTR,
+
+}USER_DEFINED;
+
 typedef struct
 {
 	void* ptr;
@@ -78,34 +92,44 @@ extern bool push_dptr_impl(ElementArray* obj, void** val, short double_pointer_t
 extern bool push_tptr_impl(ElementArray* obj, void*** val, short triple_pointer_type);
 extern void PrintCollection(const ElementArray* obj);
 extern bool PUSH_LIST(ElementArray* obj, int count, ...);
+extern bool push_struct_impl(ElementArray* obj, void* struct_data, size_t size);
+extern bool push_union_impl(ElementArray* obj, void* union_data, size_t union_size);
+extern bool push_func_impl(ElementArray* obj, void* func_ptr);
+extern bool push_file_impl(ElementArray* obj, FILE* fp);
 
-#define PUSH_INT(obj_ptr, val)     push_int_impl((obj_ptr), (val))
-#define PUSH_FLOAT(obj_ptr, val)   push_float_impl((obj_ptr), (val))
-#define PUSH_DOUBLE(obj_ptr, val)  push_double_impl((obj_ptr), (val))
-#define PUSH_LONG(obj_ptr, val)    push_long_impl((obj_ptr), (val))
-#define PUSH_SHORT(obj_ptr, val)   push_short_impl((obj_ptr), (val))
-#define PUSH_CHAR(obj_ptr, val)    push_char_impl((obj_ptr), (val))
-#define PUSH_INT_PTR(obj, val)     push_ptr_impl((obj), (void*)(val), TYPE_INT_STAR)
-#define PUSH_FLOAT_PTR(obj, val)   push_ptr_impl((obj), (void*)(val), TYPE_FLOAT_STAR)
-#define PUSH_CHAR_PTR(obj, val)    push_ptr_impl((obj), (void*)(val), TYPE_CHAR_STAR)
-#define PUSH_DOUBLE_PTR(obj, val)  push_ptr_impl((obj), (void*)(val), TYPE_DOUBLE_STAR)
-#define PUSH_LONG_PTR(obj, val)    push_ptr_impl((obj), (void*)(val), TYPE_LONG_STAR)
-#define PUSH_SHORT_PTR(obj, val)   push_ptr_impl((obj), (void*)(val), TYPE_SHORT_STAR)
-#define PUSH_VOID_PTR(obj, val)    push_ptr_impl((obj), (void*)(val), TYPE_VOID_STAR)
-#define PUSH_INT_DPTR(obj, val)    push_dptr_impl((obj), (void**)(val), TYPE_INT_STAR_DOUBLE)
-#define PUSH_FLOAT_DPTR(obj, val)  push_dptr_impl((obj), (void**)(val), TYPE_FLOAT_STAR_DOUBLE)
-#define PUSH_CHAR_DPTR(obj, val)   push_dptr_impl((obj), (void**)(val), TYPE_CHAR_STAR_DOUBLE)
-#define PUSH_DOUBLE_DPTR(obj, val) push_dptr_impl((obj), (void**)(val), TYPE_DOUBLE_STAR_DOUBLE)
-#define PUSH_LONG_DPTR(obj, val)   push_dptr_impl((obj), (void**)(val), TYPE_LONG_STAR_DOUBLE)
-#define PUSH_SHORT_DPTR(obj, val)  push_dptr_impl((obj), (void**)(val), TYPE_SHORT_STAR_DOUBLE)
-#define PUSH_VOID_DPTR(obj, val)   push_dptr_impl((obj), (void**)(val), TYPE_VOID_STAR_DOUBLE)
-#define PUSH_INT_TPTR(obj, val)    push_tptr_impl((obj), (void***)(val), TYPE_INT_STAR_TRIPLE)
-#define PUSH_FLOAT_TPTR(obj, val)  push_tptr_impl((obj), (void***)(val), TYPE_FLOAT_STAR_TRIPLE)
-#define PUSH_CHAR_TPTR(obj, val)   push_tptr_impl((obj), (void***)(val), TYPE_CHAR_STAR_TRIPLE)
-#define PUSH_DOUBLE_TPTR(obj, val) push_tptr_impl((obj), (void***)(val), TYPE_DOUBLE_STAR_TRIPLE)
-#define PUSH_LONG_TPTR(obj, val)   push_tptr_impl((obj), (void***)(val), TYPE_LONG_STAR_TRIPLE)
-#define PUSH_SHORT_TPTR(obj, val)  push_tptr_impl((obj), (void***)(val), TYPE_SHORT_STAR_TRIPLE)
-#define PUSH_VOID_TPTR(obj, val)   push_tptr_impl((obj), (void***)(val), TYPE_VOID_STAR_TRIPLE)
+#define PUSH_INT(obj_ptr, val)             push_int_impl((obj_ptr), (val))
+#define PUSH_FLOAT(obj_ptr, val)           push_float_impl((obj_ptr), (val))
+#define PUSH_DOUBLE(obj_ptr, val)          push_double_impl((obj_ptr), (val))
+#define PUSH_LONG(obj_ptr, val)            push_long_impl((obj_ptr), (val))
+#define PUSH_SHORT(obj_ptr, val)           push_short_impl((obj_ptr), (val))
+#define PUSH_CHAR(obj_ptr, val)            push_char_impl((obj_ptr), (val))
+#define PUSH_INT_PTR(obj, val)             push_ptr_impl((obj), (void*)(val), TYPE_INT_STAR)
+#define PUSH_FLOAT_PTR(obj, val)           push_ptr_impl((obj), (void*)(val), TYPE_FLOAT_STAR)
+#define PUSH_CHAR_PTR(obj, val)            push_ptr_impl((obj), (void*)(val), TYPE_CHAR_STAR)
+#define PUSH_DOUBLE_PTR(obj, val)          push_ptr_impl((obj), (void*)(val), TYPE_DOUBLE_STAR)
+#define PUSH_LONG_PTR(obj, val)            push_ptr_impl((obj), (void*)(val), TYPE_LONG_STAR)
+#define PUSH_SHORT_PTR(obj, val)           push_ptr_impl((obj), (void*)(val), TYPE_SHORT_STAR)
+#define PUSH_VOID_PTR(obj, val)            push_ptr_impl((obj), (void*)(val), TYPE_VOID_STAR)
+#define PUSH_INT_DPTR(obj, val)            push_dptr_impl((obj), (void**)(val), TYPE_INT_STAR_DOUBLE)
+#define PUSH_FLOAT_DPTR(obj, val)          push_dptr_impl((obj), (void**)(val), TYPE_FLOAT_STAR_DOUBLE)
+#define PUSH_CHAR_DPTR(obj, val)           push_dptr_impl((obj), (void**)(val), TYPE_CHAR_STAR_DOUBLE)
+#define PUSH_DOUBLE_DPTR(obj, val)         push_dptr_impl((obj), (void**)(val), TYPE_DOUBLE_STAR_DOUBLE)
+#define PUSH_LONG_DPTR(obj, val)           push_dptr_impl((obj), (void**)(val), TYPE_LONG_STAR_DOUBLE)
+#define PUSH_SHORT_DPTR(obj, val)          push_dptr_impl((obj), (void**)(val), TYPE_SHORT_STAR_DOUBLE)
+#define PUSH_VOID_DPTR(obj, val)           push_dptr_impl((obj), (void**)(val), TYPE_VOID_STAR_DOUBLE)
+#define PUSH_INT_TPTR(obj, val)            push_tptr_impl((obj), (void***)(val), TYPE_INT_STAR_TRIPLE)
+#define PUSH_FLOAT_TPTR(obj, val)          push_tptr_impl((obj), (void***)(val), TYPE_FLOAT_STAR_TRIPLE)
+#define PUSH_CHAR_TPTR(obj, val)           push_tptr_impl((obj), (void***)(val), TYPE_CHAR_STAR_TRIPLE)
+#define PUSH_DOUBLE_TPTR(obj, val)         push_tptr_impl((obj), (void***)(val), TYPE_DOUBLE_STAR_TRIPLE)
+#define PUSH_LONG_TPTR(obj, val)           push_tptr_impl((obj), (void***)(val), TYPE_LONG_STAR_TRIPLE)
+#define PUSH_SHORT_TPTR(obj, val)          push_tptr_impl((obj), (void***)(val), TYPE_SHORT_STAR_TRIPLE)
+#define PUSH_VOID_TPTR(obj, val)           push_tptr_impl((obj), (void***)(val), TYPE_VOID_STAR_TRIPLE)
+#define PUSH_UNION(obj, union_ptr) push_union_impl(obj, (void*)(union_ptr), sizeof(*(union_ptr)))
+#define PUSH_FUNC(obj, func_ptr)           push_func_impl((obj), (void*)(func_ptr))
+#define PUSH_FILE(obj, fp)                 push_file_impl((obj), (fp))
+#define PUSH_STRUCT(obj, val)			   push_struct_impl(obj, (void*)val, sizeof(*(val)));
+#define GET_STRUCT_MEMBER(elem_ptr, offset, type) (*(type*)((char*)((elem_ptr)->ptr) + (offset)))
+#define GET_UNION_MEMBER(elem_ptr, type)          (*(type*)((elem_ptr)->ptr))
 
 
 #endif

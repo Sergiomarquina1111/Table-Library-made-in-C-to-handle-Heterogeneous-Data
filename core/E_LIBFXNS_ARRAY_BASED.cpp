@@ -1,9 +1,9 @@
 #include "include/E_DEFS.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <stddef.h>
 
 extern void InitCollection(ElementArray* obj, int total)
 {
@@ -202,7 +202,34 @@ extern void PrintCollection(const ElementArray* obj)
         }
 
 
-                                 /* ==================== DEFAULT / UNKNOWN ==================== */
+                                 /* ==================== 5. USER DEFINED & COMPLEX TYPES ==================== */
+
+        case TYPE_STRUCT:
+            printf("[TYPE_STRUCT]          \t Addr  : %p (User Managed)\n", payload);
+            break;
+
+        case TYPE_UNION:
+            printf("[TYPE_UNION]           \t Addr  : %p (User Managed)\n", payload);
+            break;
+
+        case TYPE_STRUCT_PTR:
+            printf("[TYPE_STRUCT_PTR]      \t Addr  : %p\n", payload);
+            break;
+
+        case TYPE_UNION_PTR:
+            printf("[TYPE_UNION_PTR]       \t Addr  : %p\n", payload);
+            break;
+
+        case TYPE_FUNC_PTR:
+            printf("[TYPE_FUNC_PTR]        \t Addr  : %p (Code Segment)\n", payload);
+            break;
+
+        case TYPE_FILE_PTR:
+            printf("[TYPE_FILE_PTR]        \t Addr  : %p (File Stream)\n", payload);
+            break;
+
+
+            /* ==================== DEFAULT / UNKNOWN ==================== */
 
         default:
             printf("[TYPE_UNKNOWN (%d)]  \t  Addr  : %p\n", type, payload);
@@ -352,6 +379,71 @@ extern bool push_tptr_impl(ElementArray* obj, void*** val, short triple_pointer_
     return push_element(obj, node);
 }
 
+extern bool push_struct_impl(ElementArray* obj, void* struct_data, size_t size)
+{
+    if (!obj || struct_data == NULL || size == 0) {
+        return false;
+    }
+
+    void* ptr = malloc(size);
+
+    if (!ptr)
+    {
+        printf("Could not allocate on heap\n");
+        return false;
+    }
+
+    memcpy(ptr, struct_data, size);
+
+    Element node = { ptr, TYPE_STRUCT };
+    return push_element(obj, node);
+}
+
+extern bool push_union_impl(ElementArray* obj, void* union_ptr, size_t union_size)
+{
+    // Step 1: Gate Check
+    if (obj == NULL || union_ptr == NULL || union_size == 0) {
+        return false;
+    }
+
+    // Step 2: Deep Copy the Union Payload
+    void* heap_payload = malloc(union_size);
+    if (heap_payload == NULL) {
+        printf("[push_union] Fatal: Heap allocation failed for union!\n");
+        return false;
+    }
+    memcpy(heap_payload, union_ptr, union_size);
+
+    // Step 3: Tag and Push
+    Element node = { heap_payload, TYPE_UNION };
+    return push_element(obj, node);
+}
+
+extern bool push_func_impl(ElementArray* obj, void* func_ptr)
+{
+    if (obj == NULL || func_ptr == NULL) {
+        return false;
+    }
+
+    Element node = { func_ptr, TYPE_FUNC_PTR };
+
+    return push_element(obj, node);
+}
+
+extern bool push_file_impl(ElementArray* obj, FILE* file_ptr)
+{
+    // Step 1: Safety Check
+    if (obj == NULL || file_ptr == NULL) {
+        return false;
+    }
+
+    // Step 2: Direct Assignment (Zero Allocation)
+    Element node = { (void*)file_ptr, TYPE_FILE_PTR };
+
+    // Step 3: Push it to the array
+    return push_element(obj, node);
+}
+
 extern bool PUSH_LIST(ElementArray* obj, int count, ...)
 {
     if (!obj || count <= 0)
@@ -427,6 +519,20 @@ extern bool PUSH_LIST(ElementArray* obj, int count, ...)
         case TYPE_VOID_STAR_TRIPLE:
             push_tptr_impl(obj, va_arg(args, void***), type);
             break;
+        case TYPE_STRUCT:
+        {
+            void* struct_ptr = va_arg(args, void*); // Read the pointer
+            size_t struct_size = va_arg(args, size_t); // Read the size
+            push_struct_impl(obj, struct_ptr, struct_size);
+            break;
+        }
+        case TYPE_UNION:
+        {
+            void* union_ptr = va_arg(args, void*);
+            size_t union_size = va_arg(args, size_t);
+            push_union_impl(obj, union_ptr, union_size);
+            break;
+        }
 
         default:
             break;
@@ -453,49 +559,125 @@ extern Element pop_element(ElementArray* obj)
     printf("[pop_element] Extracting top element at index %d (Type Tag: %d)...\n", top_index, original.type);
 
     void* new_data = NULL;
+    bool is_primitive = false; // <-- The shield
+
     switch (original.type)
     {
-        case TYPE_INT:
-            new_data = malloc(sizeof(int));
-            if (new_data && original.ptr) *(int*)new_data = *(int*)original.ptr;
-            printf("[pop_element] Deep-copied TYPE_INT value: %d\n", *(int*)new_data);
-            break;
-        case TYPE_FLOAT:
-            new_data = malloc(sizeof(float));
-            if (new_data && original.ptr) *(float*)new_data = *(float*)original.ptr;
-            printf("[pop_element] Deep-copied TYPE_FLOAT value: %.2f\n", *(float*)new_data);
-            break;
-        case TYPE_DOUBLE:
-            new_data = malloc(sizeof(double));
-            if (new_data && original.ptr) *(double*)new_data = *(double*)original.ptr;
-            printf("[pop_element] Deep-copied TYPE_DOUBLE value: %.5f\n", *(double*)new_data);
-            break;
-        case TYPE_LONG:
-            new_data = malloc(sizeof(long));
-            if (new_data && original.ptr) *(long*)new_data = *(long*)original.ptr;
-            printf("[pop_element] Deep-copied TYPE_LONG value: %ld\n", *(long*)new_data);
-            break;
-        case TYPE_CHAR:
-            new_data = malloc(sizeof(char));
-            if (new_data && original.ptr) *(char*)new_data = *(char*)original.ptr;
-            printf("[pop_element] Deep-copied TYPE_CHAR value: '%c'\n", *(char*)new_data);
-            break;
-        case TYPE_SHORT:
-            new_data = malloc(sizeof(short));
-            if (new_data && original.ptr) *(short*)new_data = *(short*)original.ptr;
-            printf("[pop_element] Deep-copied TYPE_SHORT value: %d\n", *(short*)new_data);
-            break;
-        default:
-            printf("[pop_element] Warning: Element present with unknown identifier or EMPTY state.\n");
-            break;
+        // ==========================================
+        // PRIMITIVES (Deep Copy & Free Original)
+        // ==========================================
+    case TYPE_INT:
+        new_data = malloc(sizeof(int));
+        if (new_data && original.ptr) *(int*)new_data = *(int*)original.ptr;
+        printf("[pop_element] Deep-copied TYPE_INT value: %d\n", *(int*)new_data);
+        is_primitive = true;
+        break;
+    case TYPE_FLOAT:
+        new_data = malloc(sizeof(float));
+        if (new_data && original.ptr) *(float*)new_data = *(float*)original.ptr;
+        printf("[pop_element] Deep-copied TYPE_FLOAT value: %.2f\n", *(float*)new_data);
+        is_primitive = true;
+        break;
+    case TYPE_DOUBLE:
+        new_data = malloc(sizeof(double));
+        if (new_data && original.ptr) *(double*)new_data = *(double*)original.ptr;
+        printf("[pop_element] Deep-copied TYPE_DOUBLE value: %.5f\n", *(double*)new_data);
+        is_primitive = true;
+        break;
+    case TYPE_LONG:
+        new_data = malloc(sizeof(long));
+        if (new_data && original.ptr) *(long*)new_data = *(long*)original.ptr;
+        printf("[pop_element] Deep-copied TYPE_LONG value: %ld\n", *(long*)new_data);
+        is_primitive = true;
+        break;
+    case TYPE_CHAR:
+        new_data = malloc(sizeof(char));
+        if (new_data && original.ptr) *(char*)new_data = *(char*)original.ptr;
+        printf("[pop_element] Deep-copied TYPE_CHAR value: '%c'\n", *(char*)new_data);
+        is_primitive = true;
+        break;
+    case TYPE_SHORT:
+        new_data = malloc(sizeof(short));
+        if (new_data && original.ptr) *(short*)new_data = *(short*)original.ptr;
+        printf("[pop_element] Deep-copied TYPE_SHORT value: %d\n", *(short*)new_data);
+        is_primitive = true;
+        break;
+
+        // ==========================================
+        // SINGLE POINTERS (Pass Raw Pointer)
+        // ==========================================
+    case TYPE_NULL:
+    case TYPE_VOID_STAR:
+    case TYPE_INT_STAR:
+    case TYPE_FLOAT_STAR:
+    case TYPE_CHAR_STAR:
+    case TYPE_DOUBLE_STAR:
+    case TYPE_LONG_STAR:
+    case TYPE_SHORT_STAR:
+        new_data = original.ptr;
+        printf("[pop_element] Single pointer extracted (Tag: %d). Passing raw pointer.\n", original.type);
+        break;
+
+        // ==========================================
+        // DOUBLE POINTERS (Pass Raw Pointer)
+        // ==========================================
+    case TYPE_NULL_DOUBLE:
+    case TYPE_VOID_STAR_DOUBLE:
+    case TYPE_INT_STAR_DOUBLE:
+    case TYPE_FLOAT_STAR_DOUBLE:
+    case TYPE_CHAR_STAR_DOUBLE:
+    case TYPE_DOUBLE_STAR_DOUBLE:
+    case TYPE_LONG_STAR_DOUBLE:
+    case TYPE_SHORT_STAR_DOUBLE:
+        new_data = original.ptr;
+        printf("[pop_element] Double pointer extracted (Tag: %d). Passing raw pointer.\n", original.type);
+        break;
+
+        // ==========================================
+        // TRIPLE POINTERS (Pass Raw Pointer)
+        // ==========================================
+    case TYPE_NULL_TRIPLE:
+    case TYPE_VOID_STAR_TRIPLE:
+    case TYPE_INT_STAR_TRIPLE:
+    case TYPE_FLOAT_STAR_TRIPLE:
+    case TYPE_CHAR_STAR_TRIPLE:
+    case TYPE_DOUBLE_STAR_TRIPLE:
+    case TYPE_LONG_STAR_TRIPLE:
+    case TYPE_SHORT_STAR_TRIPLE:
+        new_data = original.ptr;
+        printf("[pop_element] Triple pointer extracted (Tag: %d). Passing raw pointer.\n", original.type);
+        break;
+
+        // ==========================================
+        // USER DEFINED & COMPLEX TYPES (Pass Raw Pointer)
+        // ==========================================
+    case TYPE_NULL_USER_DEFINED:
+    case TYPE_STRUCT:
+    case TYPE_UNION:
+    case TYPE_STRUCT_PTR:
+    case TYPE_UNION_PTR:
+    case TYPE_FUNC_PTR:
+    case TYPE_FILE_PTR:
+        new_data = original.ptr;
+        printf("[pop_element] Complex/User-Defined type extracted (Tag: %d). Passing raw pointer.\n", original.type);
+        break;
+
+    case TYPE_EMPTY:
+        printf("[pop_element] Warning: Slot is marked as TYPE_EMPTY.\n");
+        break;
+
+    default:
+        printf("[pop_element] Warning: Element present with unknown identifier or EMPTY state.\n");
+        break;
     }
 
-   
-    if (original.ptr != NULL) {
+    // Only free if it was a primitive that we successfully deep-copied
+    if (is_primitive && original.ptr != NULL) {
         free(original.ptr);
         printf("[pop_element] Internal heap payload at slot index %d freed.\n", top_index);
     }
 
+    // Sanitize the slot so the array forgets about it entirely
     obj->slots[top_index].ptr = NULL;
     obj->slots[top_index].type = TYPE_EMPTY;
 
