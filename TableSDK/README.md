@@ -160,3 +160,42 @@ g++ your_program.cpp -ltable -o your_program
   `bMaxIntStack`, and the `GET_STACK_VALUE` macro) - these aren't new,
   they're in the original code, and didn't block the build, but worth a
   look separately if you want it fully clean.
+
+## 5. Zero-friction usage: no manual link flags, no pragma in user code
+
+The goal is that an end user, after running the installer, can do exactly:
+
+```
+# MSVC
+cl HelloTable.cpp
+
+# GCC / Clang (MinGW)
+g++ HelloTable.cpp -ltable -o HelloTable.exe
+```
+
+with **no** `#pragma comment(lib, "table.lib")` in their own source and no
+manual `/link` or `-L` flags. Two things make that work:
+
+- **MSVC:** `table.h` itself now contains
+  ```c
+  #ifdef _MSC_VER
+  #pragma comment(lib, "table.lib")
+  #endif
+  ```
+  right after the include guard. This is a standard MSVC auto-link
+  mechanism (the same trick headers like `<winsock2.h>` use for
+  `ws2_32.lib`) - it embeds a linker directive into the user's own `.obj`
+  file saying "link against table.lib", and `link.exe` resolves that name
+  by searching the paths in the `LIB` environment variable - which the
+  installer already sets. So the user never writes the pragma themselves;
+  `#include <table.h>` carries it in for them. Verified: compiling
+  `table.cpp` itself under GCC (native and MinGW-target) with this change
+  produces zero warnings and zero pragma-related output - `_MSC_VER` is
+  undefined there, so GCC/Clang never even see the line.
+- **GCC/Clang:** `#pragma comment(lib,...)` isn't a GCC feature at all
+  (there's no portable equivalent that auto-links a static lib from inside
+  a header), so `-ltable` on the command line is the normal, expected way -
+  which matches what you wrote above. The reason it doesn't also need
+  `-L<path>` is `LIBRARY_PATH`, which the installer already sets to
+  `<install>\lib\mingw` - GCC searches every directory listed there
+  automatically when resolving `-ltable`.
