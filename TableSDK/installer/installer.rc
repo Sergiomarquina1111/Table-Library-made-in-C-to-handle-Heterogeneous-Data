@@ -2,8 +2,17 @@
 #include <windows.h>
 
 // Embed the manifest so Common Controls v6 (visual styles) is used without
-// requiring a separate .manifest file next to the exe.
-//1 24 "app.manifest"
+// requiring a separate .manifest file next to the exe. Only needed for
+// MSVC - newer MinGW-w64 toolchains auto-embed their own default manifest
+// into GUI executables, and embedding both causes ld's
+// ".rsrc merge failure: multiple non-default manifests" - windres defines
+// __MINGW32__ (it runs the file through the same preprocessor as gcc, with
+// the same target defines), so this guard skips ours under MinGW and lets
+// the toolchain's own default manifest (which already requests ComCtl32 v6)
+// be the only one.
+#ifndef __MINGW32__
+1 24 "app.manifest"
+#endif
 
 // Embed the SDK payload directly into the exe so installer.exe is a single,
 // fully self-contained file - no folder needs to travel with it.

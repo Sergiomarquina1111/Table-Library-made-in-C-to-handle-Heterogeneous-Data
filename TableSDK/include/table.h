@@ -12,6 +12,17 @@
 #include <limits.h>
 #include <assert.h>
 
+// Auto-link support for MSVC: lets a user's code do `#include <table.h>`
+// and just `cl HelloTable.cpp` without also writing
+// `#pragma comment(lib, "table.lib")` themselves - the header does it for
+// them. This only fires for MSVC; g++/clang ignore #pragma comment(lib,...)
+// entirely (it isn't a GCC extension), which is why GCC/MinGW users still
+// pass -ltable explicitly on the command line - LIBRARY_PATH (set by the
+// installer) lets them do that without an extra -L flag.
+#ifdef _MSC_VER
+#pragma comment(lib, "table.lib")
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
