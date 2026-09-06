@@ -1,0 +1,841 @@
+========================================================
+ VOIDSTAR/TABLE exhaustive function-coverage test suite
+========================================================
+
+=== Table (heap dynamic array) ===
+
+=== Initializing Table ===
+[vGetTable] Global Master Arena mapped: 65536 bytes.
+[vGetTable] Table initialized successfully.
+
+[bPushSlot] TableSlot_DA pushed successfully at index 0 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 1 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 2 (Type Tag: 2).
+[bPushSlot] TableSlot_DA pushed successfully at index 3 (Type Tag: 3).
+
+[bPushSlot] Capacity reached (4). Growing buffer to 6 slots (96 bytes)...
+[bPushSlot] Buffer successfully grown to 6 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 4 (Type Tag: 5).
+[bPushSlot] TableSlot_DA pushed successfully at index 5 (Type Tag: 6).
+
+[bPushSlot] Capacity reached (6). Growing buffer to 9 slots (144 bytes)...
+[bPushSlot] Buffer successfully grown to 9 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 6 (Type Tag: 4).
+[bPushSlot] TableSlot_DA pushed successfully at index 7 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 8 (Type Tag: 2).
+
+[bPushSlot] Capacity reached (9). Growing buffer to 13 slots (208 bytes)...
+[bPushSlot] Buffer successfully grown to 13 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 9 (Type Tag: 3).
+[bPushSlot] TableSlot_DA pushed successfully at index 10 (Type Tag: 5).
+[bPushSlot] TableSlot_DA pushed successfully at index 11 (Type Tag: 6).
+[bPushSlot] TableSlot_DA pushed successfully at index 12 (Type Tag: 4).
+
+[bPushSlot] Capacity reached (13). Growing buffer to 19 slots (304 bytes)...
+[bPushSlot] Buffer successfully grown to 19 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 13 (Type Tag: 12).
+[bPushSlot] TableSlot_DA pushed successfully at index 14 (Type Tag: 11).
+[bPushSlot] TableSlot_DA pushed successfully at index 15 (Type Tag: 12).
+[bPushSlot] TableSlot_DA pushed successfully at index 16 (Type Tag: 13).
+[bPushSlot] TableSlot_DA pushed successfully at index 17 (Type Tag: 14).
+[bPushSlot] TableSlot_DA pushed successfully at index 18 (Type Tag: 15).
+
+[bPushSlot] Capacity reached (19). Growing buffer to 28 slots (448 bytes)...
+[bPushSlot] Buffer successfully grown to 28 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 19 (Type Tag: 16).
+[bPushSlot] TableSlot_DA pushed successfully at index 20 (Type Tag: 17).
+[bPushSlot] TableSlot_DA pushed successfully at index 21 (Type Tag: 102).
+[bPushSlot] TableSlot_DA pushed successfully at index 22 (Type Tag: 101).
+[bPushSlot] TableSlot_DA pushed successfully at index 23 (Type Tag: 102).
+[bPushSlot] TableSlot_DA pushed successfully at index 24 (Type Tag: 103).
+[bPushSlot] TableSlot_DA pushed successfully at index 25 (Type Tag: 104).
+[bPushSlot] TableSlot_DA pushed successfully at index 26 (Type Tag: 105).
+[bPushSlot] TableSlot_DA pushed successfully at index 27 (Type Tag: 106).
+
+[bPushSlot] Capacity reached (28). Growing buffer to 42 slots (672 bytes)...
+[bPushSlot] Buffer successfully grown to 42 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 28 (Type Tag: 107).
+[bPushSlot] TableSlot_DA pushed successfully at index 29 (Type Tag: 1002).
+[bPushSlot] TableSlot_DA pushed successfully at index 30 (Type Tag: 1001).
+[bPushSlot] TableSlot_DA pushed successfully at index 31 (Type Tag: 1002).
+[bPushSlot] TableSlot_DA pushed successfully at index 32 (Type Tag: 1003).
+[bPushSlot] TableSlot_DA pushed successfully at index 33 (Type Tag: 1004).
+[bPushSlot] TableSlot_DA pushed successfully at index 34 (Type Tag: 1005).
+[bPushSlot] TableSlot_DA pushed successfully at index 35 (Type Tag: 1006).
+[bPushSlot] TableSlot_DA pushed successfully at index 36 (Type Tag: 1007).
+[bPushSlot] TableSlot_DA pushed successfully at index 37 (Type Tag: 2001).
+[bPushSlot] TableSlot_DA pushed successfully at index 38 (Type Tag: 2001).
+[bPushSlot] TableSlot_DA pushed successfully at index 39 (Type Tag: 2002).
+[bPushSlot] TableSlot_DA pushed successfully at index 40 (Type Tag: 2002).
+[bPushSlot] TableSlot_DA pushed successfully at index 41 (Type Tag: 2005).
+
+[bPushSlot] Capacity reached (42). Growing buffer to 63 slots (1008 bytes)...
+[bPushSlot] Buffer successfully grown to 63 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 42 (Type Tag: 2005).
+[bPushSlot] TableSlot_DA pushed successfully at index 43 (Type Tag: 2006).
+[bPushSlot] TableSlot_DA pushed successfully at index 44 (Type Tag: 2006).
+[bPushSlot] TableSlot_DA pushed successfully at index 45 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 46 (Type Tag: 2).
+[bPushSlot] TableSlot_DA pushed successfully at index 47 (Type Tag: 4).
+
+========================================================================
+  TABLE CONTENTS  |  Count: 48   |  Capacity: 63 
+========================================================================
+ [00] [TYPE_INT]              	 Value : 10
+ [01] [TYPE_INT]              	 Value : 20
+ [02] [TYPE_FLOAT]            	 Value : 3.5000
+ [03] [TYPE_DOUBLE]           	 Value : 2.718280
+ [04] [TYPE_LONG]             	 Value : 123456789
+ [05] [TYPE_SHORT]            	 Value : 7
+ [06] [TYPE_CHAR]             	 Value : 'Z'
+ [07] [TYPE_INT]              	 Value : 1
+ [08] [TYPE_FLOAT]            	 Value : 1.1000
+ [09] [TYPE_DOUBLE]           	 Value : 1.110000
+ [10] [TYPE_LONG]             	 Value : 1
+ [11] [TYPE_SHORT]            	 Value : 1
+ [12] [TYPE_CHAR]             	 Value : 'a'
+ [13] [TYPE_INT_STAR]        	 Addr  : 000000E2DE70F608 -> Val: 99
+ [14] [TYPE_VOID_STAR]       	 Addr  : 000000E2DE70F608
+ [15] [TYPE_INT_STAR]        	 Addr  : 000000E2DE70F608 -> Val: 99
+ [16] [TYPE_FLOAT_STAR]      	 Addr  : 000000E2DE70F60C -> Val: 9.9000
+ [17] [TYPE_CHAR_STAR]       	 Addr  : 000000E2DE70F600 -> Val: 'p'
+ [18] [TYPE_DOUBLE_STAR]     	 Addr  : 000000E2DE70F640 -> Val: 8.800000
+ [19] [TYPE_LONG_STAR]       	 Addr  : 000000E2DE70F610 -> Val: 321
+ [20] [TYPE_SHORT_STAR]      	 Addr  : 000000E2DE70F604 -> Val: 3
+ [21] [TYPE_INT_STAR_DOUBLE] 	 Addr  : 000000E2DE70F638 -> Val: 99
+ [22] [TYPE_VOID_STAR_DOUBLE]	 Addr  : 000000E2DE70F678
+ [23] [TYPE_INT_STAR_DOUBLE] 	 Addr  : 000000E2DE70F638 -> Val: 99
+ [24] [TYPE_FLOAT_STAR_DOUBLE] 	 Addr : 000000E2DE70F650 -> Val: 9.9000
+ [25] [TYPE_CHAR_STAR_DOUBLE] 	 Addr  : 000000E2DE70F658 -> Val: 'p'
+ [26] [TYPE_DOUBLE_STAR_DOUBLE]	 Addr : 000000E2DE70F660 -> Val: 8.800000
+ [27] [TYPE_LONG_STAR_DOUBLE]	 Addr  : 000000E2DE70F668 -> Val: 321
+ [28] [TYPE_SHORT_STAR_DOUBLE]	 Addr  : 000000E2DE70F670 -> Val: 3
+ [29] [TYPE_INT_STAR_TRIPLE] 	 Addr  : 000000E2DE70F680 -> Val: 99
+ [30] [TYPE_VOID_STAR_TRIPLE]	 Addr  : 000000E2DE70F6A8
+ [31] [TYPE_INT_STAR_TRIPLE] 	 Addr  : 000000E2DE70F680 -> Val: 99
+ [32] [TYPE_FLOAT_STAR_TRIPLE]	 Addr  : 000000E2DE70F6B0 -> Val: 9.9000
+ [33] [TYPE_CHAR_STAR_TRIPLE]	 Addr  : 000000E2DE70F6B8 -> Val: 'p'
+ [34] [TYPE_DOUBLE_STAR_TRIPLE]	 Addr  : 000000E2DE70F6C0 -> Val: 8.800000
+ [35] [TYPE_LONG_STAR_TRIPLE]	 Addr  : 000000E2DE70F6C8 -> Val: 321
+ [36] [TYPE_SHORT_STAR_TRIPLE]	 Addr  : 000000E2DE70F6D0 -> Val: 3
+ [37] [TYPE_STRUCT]          	 Addr  : 00000219E38AC350 (User Managed)
+ [38] [TYPE_STRUCT]          	 Addr  : 00000219E38AC370 (User Managed)
+ [39] [TYPE_UNION]           	 Addr  : 00000219E38AC390 (User Managed)
+ [40] [TYPE_UNION]           	 Addr  : 00000219E38AC3A8 (User Managed)
+ [41] [TYPE_FUNC_PTR]        	 Addr  : 00007FF6E0071280 (Code Segment)
+ [42] [TYPE_FUNC_PTR]        	 Addr  : 00007FF6E0071220 (Code Segment)
+ [43] [TYPE_FILE_PTR]        	 Addr  : 00007FF6E00B50E8 (File Stream)
+ [44] [TYPE_FILE_PTR]        	 Addr  : 00007FF6E00B5140 (File Stream)
+ [45] [TYPE_INT]              	 Value : 777
+ [46] [TYPE_FLOAT]            	 Value : 7.7700
+ [47] [TYPE_CHAR]             	 Value : 'v'
+------------------------------------------------------------------------
+
+[bTryGetSlotAtTable] Type mismatch at index 0: expected 2, found 1.
+[bTryGetSlotAtTable] Error: index 99999 out of range (count=48).
+[bPushSlot] TableSlot_DA pushed successfully at index 48 (Type Tag: 4).
+[bInsertAtTable] Inserted at index 0 (Type Tag: 0). New count: 50
+[bRemoveAtTable] Removed index 0. New count: 49
+[bPushSlot] TableSlot_DA pushed successfully at index 49 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 50 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 51 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 52 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 53 (Type Tag: 1).
+[iPushIntArrayTable] Pushed 5/5 int(s) (buffer grows automatically).
+[bPushSlot] TableSlot_DA pushed successfully at index 54 (Type Tag: 2).
+[bPushSlot] TableSlot_DA pushed successfully at index 55 (Type Tag: 2).
+[iPushFloatArrayTable] Pushed 2/2 float(s) (buffer grows automatically).
+
+=== Initializing Table ===
+[vGetTable] Table initialized successfully.
+
+
+[bCloneTable] Cloning from source table (56 slot(s))...
+[bPushSlot] TableSlot_DA pushed successfully at index 0 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 1 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 2 (Type Tag: 2).
+[bPushSlot] TableSlot_DA pushed successfully at index 3 (Type Tag: 3).
+
+[bPushSlot] Capacity reached (4). Growing buffer to 6 slots (96 bytes)...
+[bPushSlot] Buffer successfully grown to 6 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 4 (Type Tag: 5).
+[bPushSlot] TableSlot_DA pushed successfully at index 5 (Type Tag: 6).
+
+[bPushSlot] Capacity reached (6). Growing buffer to 9 slots (144 bytes)...
+[bPushSlot] Buffer successfully grown to 9 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 6 (Type Tag: 4).
+[bPushSlot] TableSlot_DA pushed successfully at index 7 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 8 (Type Tag: 2).
+
+[bPushSlot] Capacity reached (9). Growing buffer to 13 slots (208 bytes)...
+[bPushSlot] Buffer successfully grown to 13 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 9 (Type Tag: 3).
+[bPushSlot] TableSlot_DA pushed successfully at index 10 (Type Tag: 5).
+[bPushSlot] TableSlot_DA pushed successfully at index 11 (Type Tag: 6).
+[bPushSlot] TableSlot_DA pushed successfully at index 12 (Type Tag: 4).
+
+[bPushSlot] Capacity reached (13). Growing buffer to 19 slots (304 bytes)...
+[bPushSlot] Buffer successfully grown to 19 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 13 (Type Tag: 12).
+[bPushSlot] TableSlot_DA pushed successfully at index 14 (Type Tag: 11).
+[bPushSlot] TableSlot_DA pushed successfully at index 15 (Type Tag: 12).
+[bPushSlot] TableSlot_DA pushed successfully at index 16 (Type Tag: 13).
+[bPushSlot] TableSlot_DA pushed successfully at index 17 (Type Tag: 14).
+[bPushSlot] TableSlot_DA pushed successfully at index 18 (Type Tag: 15).
+
+[bPushSlot] Capacity reached (19). Growing buffer to 28 slots (448 bytes)...
+[bPushSlot] Buffer successfully grown to 28 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 19 (Type Tag: 16).
+[bPushSlot] TableSlot_DA pushed successfully at index 20 (Type Tag: 17).
+[bPushSlot] TableSlot_DA pushed successfully at index 21 (Type Tag: 102).
+[bPushSlot] TableSlot_DA pushed successfully at index 22 (Type Tag: 101).
+[bPushSlot] TableSlot_DA pushed successfully at index 23 (Type Tag: 102).
+[bPushSlot] TableSlot_DA pushed successfully at index 24 (Type Tag: 103).
+[bPushSlot] TableSlot_DA pushed successfully at index 25 (Type Tag: 104).
+[bPushSlot] TableSlot_DA pushed successfully at index 26 (Type Tag: 105).
+[bPushSlot] TableSlot_DA pushed successfully at index 27 (Type Tag: 106).
+
+[bPushSlot] Capacity reached (28). Growing buffer to 42 slots (672 bytes)...
+[bPushSlot] Buffer successfully grown to 42 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 28 (Type Tag: 107).
+[bPushSlot] TableSlot_DA pushed successfully at index 29 (Type Tag: 1002).
+[bPushSlot] TableSlot_DA pushed successfully at index 30 (Type Tag: 1001).
+[bPushSlot] TableSlot_DA pushed successfully at index 31 (Type Tag: 1002).
+[bPushSlot] TableSlot_DA pushed successfully at index 32 (Type Tag: 1003).
+[bPushSlot] TableSlot_DA pushed successfully at index 33 (Type Tag: 1004).
+[bPushSlot] TableSlot_DA pushed successfully at index 34 (Type Tag: 1005).
+[bPushSlot] TableSlot_DA pushed successfully at index 35 (Type Tag: 1006).
+[bPushSlot] TableSlot_DA pushed successfully at index 36 (Type Tag: 1007).
+ -> Skipped index 37: TYPE_STRUCT/TYPE_UNION size isn't tracked, can't clone safely.
+ -> Skipped index 38: TYPE_STRUCT/TYPE_UNION size isn't tracked, can't clone safely.
+ -> Skipped index 39: TYPE_STRUCT/TYPE_UNION size isn't tracked, can't clone safely.
+ -> Skipped index 40: TYPE_STRUCT/TYPE_UNION size isn't tracked, can't clone safely.
+[bPushSlot] TableSlot_DA pushed successfully at index 37 (Type Tag: 2005).
+[bPushSlot] TableSlot_DA pushed successfully at index 38 (Type Tag: 2005).
+[bPushSlot] TableSlot_DA pushed successfully at index 39 (Type Tag: 2006).
+[bPushSlot] TableSlot_DA pushed successfully at index 40 (Type Tag: 2006).
+[bPushSlot] TableSlot_DA pushed successfully at index 41 (Type Tag: 1).
+
+[bPushSlot] Capacity reached (42). Growing buffer to 63 slots (1008 bytes)...
+[bPushSlot] Buffer successfully grown to 63 slots.
+[bPushSlot] TableSlot_DA pushed successfully at index 42 (Type Tag: 2).
+[bPushSlot] TableSlot_DA pushed successfully at index 43 (Type Tag: 4).
+[bPushSlot] TableSlot_DA pushed successfully at index 44 (Type Tag: 4).
+[bPushSlot] TableSlot_DA pushed successfully at index 45 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 46 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 47 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 48 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 49 (Type Tag: 1).
+[bPushSlot] TableSlot_DA pushed successfully at index 50 (Type Tag: 2).
+[bPushSlot] TableSlot_DA pushed successfully at index 51 (Type Tag: 2).
+[bCloneTable] Clone pass complete.
+
+[vReserveTable] Reserved 16 extra slot(s) - capacity now 79.
+[vShrinkToFitTable] Shrunk buffer to exactly 56 slot(s).
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 55 (Type Tag: 2)...
+[sPopSlot] Deep-copied TYPE_FLOAT value: 2.20
+[sPopSlot] Internal heap payload at slot index 55 freed.
+[sPopSlot] Slot index 55 sanitized. Remaining active count: 55
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 54 (Type Tag: 2)...
+[sPopSlot] Deep-copied TYPE_FLOAT value: 1.10
+[sPopSlot] Internal heap payload at slot index 54 freed.
+[sPopSlot] Slot index 54 sanitized. Remaining active count: 54
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 53 (Type Tag: 1)...
+[sPopSlot] Deep-copied TYPE_INT value: 5
+[sPopSlot] Internal heap payload at slot index 53 freed.
+[sPopSlot] Slot index 53 sanitized. Remaining active count: 53
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 52 (Type Tag: 1)...
+[sPopSlot] Deep-copied TYPE_INT value: 4
+[sPopSlot] Internal heap payload at slot index 52 freed.
+[sPopSlot] Slot index 52 sanitized. Remaining active count: 52
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 51 (Type Tag: 1)...
+[sPopSlot] Deep-copied TYPE_INT value: 3
+[sPopSlot] Internal heap payload at slot index 51 freed.
+[sPopSlot] Slot index 51 sanitized. Remaining active count: 51
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 50 (Type Tag: 1)...
+[sPopSlot] Deep-copied TYPE_INT value: 2
+[sPopSlot] Internal heap payload at slot index 50 freed.
+[sPopSlot] Slot index 50 sanitized. Remaining active count: 50
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 49 (Type Tag: 1)...
+[sPopSlot] Deep-copied TYPE_INT value: 1
+[sPopSlot] Internal heap payload at slot index 49 freed.
+[sPopSlot] Slot index 49 sanitized. Remaining active count: 49
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 48 (Type Tag: 4)...
+[sPopSlot] Deep-copied TYPE_CHAR value: 'v'
+[sPopSlot] Internal heap payload at slot index 48 freed.
+[sPopSlot] Slot index 48 sanitized. Remaining active count: 48
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 47 (Type Tag: 4)...
+[sPopSlot] Deep-copied TYPE_CHAR value: 'v'
+[sPopSlot] Internal heap payload at slot index 47 freed.
+[sPopSlot] Slot index 47 sanitized. Remaining active count: 47
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 46 (Type Tag: 2)...
+[sPopSlot] Deep-copied TYPE_FLOAT value: 7.77
+[sPopSlot] Internal heap payload at slot index 46 freed.
+[sPopSlot] Slot index 46 sanitized. Remaining active count: 46
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 45 (Type Tag: 1)...
+[sPopSlot] Deep-copied TYPE_INT value: 777
+[sPopSlot] Internal heap payload at slot index 45 freed.
+[sPopSlot] Slot index 45 sanitized. Remaining active count: 45
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 44 (Type Tag: 2006)...
+[sPopSlot] Complex/User-Defined type extracted (Tag: 2006). Passing raw pointer.
+[sPopSlot] Slot index 44 sanitized. Remaining active count: 44
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 43 (Type Tag: 2006)...
+[sPopSlot] Complex/User-Defined type extracted (Tag: 2006). Passing raw pointer.
+[sPopSlot] Slot index 43 sanitized. Remaining active count: 43
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 42 (Type Tag: 2005)...
+[sPopSlot] Complex/User-Defined type extracted (Tag: 2005). Passing raw pointer.
+[sPopSlot] Slot index 42 sanitized. Remaining active count: 42
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 41 (Type Tag: 2005)...
+[sPopSlot] Complex/User-Defined type extracted (Tag: 2005). Passing raw pointer.
+[sPopSlot] Slot index 41 sanitized. Remaining active count: 41
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 40 (Type Tag: 2002)...
+[sPopSlot] Complex/User-Defined type extracted (Tag: 2002). Passing raw pointer.
+[sPopSlot] Slot index 40 sanitized. Remaining active count: 40
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 39 (Type Tag: 2002)...
+[sPopSlot] Complex/User-Defined type extracted (Tag: 2002). Passing raw pointer.
+[sPopSlot] Slot index 39 sanitized. Remaining active count: 39
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 38 (Type Tag: 2001)...
+[sPopSlot] Complex/User-Defined type extracted (Tag: 2001). Passing raw pointer.
+[sPopSlot] Slot index 38 sanitized. Remaining active count: 38
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 37 (Type Tag: 2001)...
+[sPopSlot] Complex/User-Defined type extracted (Tag: 2001). Passing raw pointer.
+[sPopSlot] Slot index 37 sanitized. Remaining active count: 37
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 36 (Type Tag: 1007)...
+[sPopSlot] Triple pointer extracted (Tag: 1007). Passing raw pointer.
+[sPopSlot] Slot index 36 sanitized. Remaining active count: 36
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 35 (Type Tag: 1006)...
+[sPopSlot] Triple pointer extracted (Tag: 1006). Passing raw pointer.
+[sPopSlot] Slot index 35 sanitized. Remaining active count: 35
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 34 (Type Tag: 1005)...
+[sPopSlot] Triple pointer extracted (Tag: 1005). Passing raw pointer.
+[sPopSlot] Slot index 34 sanitized. Remaining active count: 34
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 33 (Type Tag: 1004)...
+[sPopSlot] Triple pointer extracted (Tag: 1004). Passing raw pointer.
+[sPopSlot] Slot index 33 sanitized. Remaining active count: 33
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 32 (Type Tag: 1003)...
+[sPopSlot] Triple pointer extracted (Tag: 1003). Passing raw pointer.
+[sPopSlot] Slot index 32 sanitized. Remaining active count: 32
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 31 (Type Tag: 1002)...
+[sPopSlot] Triple pointer extracted (Tag: 1002). Passing raw pointer.
+[sPopSlot] Slot index 31 sanitized. Remaining active count: 31
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 30 (Type Tag: 1001)...
+[sPopSlot] Triple pointer extracted (Tag: 1001). Passing raw pointer.
+[sPopSlot] Slot index 30 sanitized. Remaining active count: 30
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 29 (Type Tag: 1002)...
+[sPopSlot] Triple pointer extracted (Tag: 1002). Passing raw pointer.
+[sPopSlot] Slot index 29 sanitized. Remaining active count: 29
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 28 (Type Tag: 107)...
+[sPopSlot] Double pointer extracted (Tag: 107). Passing raw pointer.
+[sPopSlot] Slot index 28 sanitized. Remaining active count: 28
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 27 (Type Tag: 106)...
+[sPopSlot] Double pointer extracted (Tag: 106). Passing raw pointer.
+[sPopSlot] Slot index 27 sanitized. Remaining active count: 27
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 26 (Type Tag: 105)...
+[sPopSlot] Double pointer extracted (Tag: 105). Passing raw pointer.
+[sPopSlot] Slot index 26 sanitized. Remaining active count: 26
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 25 (Type Tag: 104)...
+[sPopSlot] Double pointer extracted (Tag: 104). Passing raw pointer.
+[sPopSlot] Slot index 25 sanitized. Remaining active count: 25
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 24 (Type Tag: 103)...
+[sPopSlot] Double pointer extracted (Tag: 103). Passing raw pointer.
+[sPopSlot] Slot index 24 sanitized. Remaining active count: 24
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 23 (Type Tag: 102)...
+[sPopSlot] Double pointer extracted (Tag: 102). Passing raw pointer.
+[sPopSlot] Slot index 23 sanitized. Remaining active count: 23
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 22 (Type Tag: 101)...
+[sPopSlot] Double pointer extracted (Tag: 101). Passing raw pointer.
+[sPopSlot] Slot index 22 sanitized. Remaining active count: 22
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 21 (Type Tag: 102)...
+[sPopSlot] Double pointer extracted (Tag: 102). Passing raw pointer.
+[sPopSlot] Slot index 21 sanitized. Remaining active count: 21
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 20 (Type Tag: 17)...
+[sPopSlot] Single pointer extracted (Tag: 17). Passing raw pointer.
+[sPopSlot] Slot index 20 sanitized. Remaining active count: 20
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 19 (Type Tag: 16)...
+[sPopSlot] Single pointer extracted (Tag: 16). Passing raw pointer.
+[sPopSlot] Slot index 19 sanitized. Remaining active count: 19
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 18 (Type Tag: 15)...
+[sPopSlot] Single pointer extracted (Tag: 15). Passing raw pointer.
+[sPopSlot] Slot index 18 sanitized. Remaining active count: 18
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 17 (Type Tag: 14)...
+[sPopSlot] Single pointer extracted (Tag: 14). Passing raw pointer.
+[sPopSlot] Slot index 17 sanitized. Remaining active count: 17
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 16 (Type Tag: 13)...
+[sPopSlot] Single pointer extracted (Tag: 13). Passing raw pointer.
+[sPopSlot] Slot index 16 sanitized. Remaining active count: 16
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 15 (Type Tag: 12)...
+[sPopSlot] Single pointer extracted (Tag: 12). Passing raw pointer.
+[sPopSlot] Slot index 15 sanitized. Remaining active count: 15
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 14 (Type Tag: 11)...
+[sPopSlot] Single pointer extracted (Tag: 11). Passing raw pointer.
+[sPopSlot] Slot index 14 sanitized. Remaining active count: 14
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 13 (Type Tag: 12)...
+[sPopSlot] Single pointer extracted (Tag: 12). Passing raw pointer.
+[sPopSlot] Slot index 13 sanitized. Remaining active count: 13
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 12 (Type Tag: 4)...
+[sPopSlot] Deep-copied TYPE_CHAR value: 'a'
+[sPopSlot] Internal heap payload at slot index 12 freed.
+[sPopSlot] Slot index 12 sanitized. Remaining active count: 12
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 11 (Type Tag: 6)...
+[sPopSlot] Deep-copied TYPE_SHORT value: 1
+[sPopSlot] Internal heap payload at slot index 11 freed.
+[sPopSlot] Slot index 11 sanitized. Remaining active count: 11
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 10 (Type Tag: 5)...
+[sPopSlot] Deep-copied TYPE_LONG value: 1
+[sPopSlot] Internal heap payload at slot index 10 freed.
+[sPopSlot] Slot index 10 sanitized. Remaining active count: 10
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 9 (Type Tag: 3)...
+[sPopSlot] Deep-copied TYPE_DOUBLE value: 1.11000
+[sPopSlot] Internal heap payload at slot index 9 freed.
+[sPopSlot] Slot index 9 sanitized. Remaining active count: 9
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 8 (Type Tag: 2)...
+[sPopSlot] Deep-copied TYPE_FLOAT value: 1.10
+[sPopSlot] Internal heap payload at slot index 8 freed.
+[sPopSlot] Slot index 8 sanitized. Remaining active count: 8
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 7 (Type Tag: 1)...
+[sPopSlot] Deep-copied TYPE_INT value: 1
+[sPopSlot] Internal heap payload at slot index 7 freed.
+[sPopSlot] Slot index 7 sanitized. Remaining active count: 7
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 6 (Type Tag: 4)...
+[sPopSlot] Deep-copied TYPE_CHAR value: 'Z'
+[sPopSlot] Internal heap payload at slot index 6 freed.
+[sPopSlot] Slot index 6 sanitized. Remaining active count: 6
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 5 (Type Tag: 6)...
+[sPopSlot] Deep-copied TYPE_SHORT value: 7
+[sPopSlot] Internal heap payload at slot index 5 freed.
+[sPopSlot] Slot index 5 sanitized. Remaining active count: 5
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 4 (Type Tag: 5)...
+[sPopSlot] Deep-copied TYPE_LONG value: 123456789
+[sPopSlot] Internal heap payload at slot index 4 freed.
+[sPopSlot] Slot index 4 sanitized. Remaining active count: 4
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 3 (Type Tag: 3)...
+[sPopSlot] Deep-copied TYPE_DOUBLE value: 2.71828
+[sPopSlot] Internal heap payload at slot index 3 freed.
+[sPopSlot] Slot index 3 sanitized. Remaining active count: 3
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 2 (Type Tag: 2)...
+[sPopSlot] Deep-copied TYPE_FLOAT value: 3.50
+[sPopSlot] Internal heap payload at slot index 2 freed.
+[sPopSlot] Slot index 2 sanitized. Remaining active count: 2
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 1 (Type Tag: 1)...
+[sPopSlot] Deep-copied TYPE_INT value: 20
+[sPopSlot] Internal heap payload at slot index 1 freed.
+[sPopSlot] Slot index 1 sanitized. Remaining active count: 1
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Extracting top element at index 0 (Type Tag: 1)...
+[sPopSlot] Deep-copied TYPE_INT value: 10
+[sPopSlot] Internal heap payload at slot index 0 freed.
+[sPopSlot] Slot index 0 sanitized. Remaining active count: 0
+
+=== Popping TableSlot_DA ===
+[sPopSlot] Underflow Error: Cannot pop from an empty or NULL collection!
+
+--- Dropping Table ---
+[vDropTable] Deallocating 52 active element payload(s)...
+ -> Freed heap payload at index 0
+ -> Freed heap payload at index 1
+ -> Freed heap payload at index 2
+ -> Freed heap payload at index 3
+ -> Freed heap payload at index 4
+ -> Freed heap payload at index 5
+ -> Freed heap payload at index 6
+ -> Freed heap payload at index 7
+ -> Freed heap payload at index 8
+ -> Freed heap payload at index 9
+ -> Freed heap payload at index 10
+ -> Freed heap payload at index 11
+ -> Freed heap payload at index 12
+ -> Freed heap payload at index 13
+ -> Freed heap payload at index 14
+ -> Freed heap payload at index 15
+ -> Freed heap payload at index 16
+ -> Freed heap payload at index 17
+ -> Freed heap payload at index 18
+ -> Freed heap payload at index 19
+ -> Freed heap payload at index 20
+ -> Freed heap payload at index 21
+ -> Freed heap payload at index 22
+ -> Freed heap payload at index 23
+ -> Freed heap payload at index 24
+ -> Freed heap payload at index 25
+ -> Freed heap payload at index 26
+ -> Freed heap payload at index 27
+ -> Freed heap payload at index 28
+ -> Freed heap payload at index 29
+ -> Freed heap payload at index 30
+ -> Freed heap payload at index 31
+ -> Freed heap payload at index 32
+ -> Freed heap payload at index 33
+ -> Freed heap payload at index 34
+ -> Freed heap payload at index 35
+ -> Freed heap payload at index 36
+ -> Skipped index 37 (Tag: 2005, not owned by Table)
+ -> Skipped index 38 (Tag: 2005, not owned by Table)
+ -> Skipped index 39 (Tag: 2006, not owned by Table)
+ -> Skipped index 40 (Tag: 2006, not owned by Table)
+ -> Freed heap payload at index 41
+ -> Freed heap payload at index 42
+ -> Freed heap payload at index 43
+ -> Freed heap payload at index 44
+ -> Freed heap payload at index 45
+ -> Freed heap payload at index 46
+ -> Freed heap payload at index 47
+ -> Freed heap payload at index 48
+ -> Freed heap payload at index 49
+ -> Freed heap payload at index 50
+ -> Freed heap payload at index 51
+[vDropTable] Main array memory freed and metadata reset to 0.
+--- Table Successfully Dropped ---
+
+
+--- Dropping Table ---
+[vDropTable] Deallocating 0 active element payload(s)...
+[vDropTable] Main array memory freed and metadata reset to 0.
+--- Table Successfully Dropped ---
+
+
+=== TableStack (fixed stack array) ===
+
+=== Initializing Table (stack) ===
+[vGetTableStack] Table initialized (Capacity: 48).
+
+[bPushSlotStack] TableSlot_SA pushed successfully at index 0 (Type Tag: 0).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 0 (Type Tag: 1).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 1 (Type Tag: 2).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 2 (Type Tag: 3).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 3 (Type Tag: 5).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 4 (Type Tag: 6).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 5 (Type Tag: 4).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 6 (Type Tag: 1).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 7 (Type Tag: 2).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 8 (Type Tag: 3).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 9 (Type Tag: 5).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 10 (Type Tag: 6).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 11 (Type Tag: 4).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 12 (Type Tag: 12).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 13 (Type Tag: 102).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 14 (Type Tag: 1002).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 15 (Type Tag: 12).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 16 (Type Tag: 11).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 17 (Type Tag: 102).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 18 (Type Tag: 101).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 19 (Type Tag: 1002).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 20 (Type Tag: 1001).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 21 (Type Tag: 2001).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 22 (Type Tag: 2002).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 23 (Type Tag: 2005).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 24 (Type Tag: 2006).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 25 (Type Tag: 2001).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 26 (Type Tag: 2002).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 27 (Type Tag: 2005).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 28 (Type Tag: 2006).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 29 (Type Tag: 1).
+[bPushSlotStack] TableSlot_SA pushed successfully at index 30 (Type Tag: 4).
+
+========================================================================
+  TABLE CONTENTS (stack)  |  Count: 31   |  Capacity: 48 
+========================================================================
+ [00] [TYPE_INT]              	 Value : 5
+ [01] [TYPE_FLOAT]            	 Value : 1.5000
+ [02] [TYPE_DOUBLE]           	 Value : 9.990000
+ [03] [TYPE_LONG]             	 Value : 55
+ [04] [TYPE_SHORT]            	 Value : 6
+ [05] [TYPE_CHAR]             	 Value : 'Q'
+ [06] [TYPE_INT]              	 Value : 15
+ [07] [TYPE_FLOAT]            	 Value : 2.5000
+ [08] [TYPE_DOUBLE]           	 Value : 8.880000
+ [09] [TYPE_LONG]             	 Value : 66
+ [10] [TYPE_SHORT]            	 Value : 9
+ [11] [TYPE_CHAR]             	 Value : 'R'
+ [12] [INT*     , Tag 12  ] 	 Addr  : 000000E2DE70F090
+ [13] [POINTER/OTHER, Tag 102 ] 	 Addr  : 000000E2DE70F0A0
+ [14] [POINTER/OTHER, Tag 1002] 	 Addr  : 000000E2DE70F0B0
+ [15] [INT*     , Tag 12  ] 	 Addr  : 000000E2DE70F090
+ [16] [VOID*    , Tag 11  ] 	 Addr  : 000000E2DE70F090
+ [17] [POINTER/OTHER, Tag 102 ] 	 Addr  : 000000E2DE70F0A0
+ [18] [POINTER/OTHER, Tag 101 ] 	 Addr  : 000000E2DE70F0A0
+ [19] [POINTER/OTHER, Tag 1002] 	 Addr  : 000000E2DE70F0B0
+ [20] [POINTER/OTHER, Tag 1001] 	 Addr  : 000000E2DE70F0B0
+ [21] [TYPE_STRUCT]           	 (inline cell, <= 8 bytes)
+ [22] [TYPE_UNION]            	 (inline cell, <= 8 bytes)
+ [23] [TYPE_FUNC_PTR]         	 Addr  : 00007FF6E0073540
+ [24] [TYPE_FILE_PTR]         	 Addr  : 00007FF6E00B50E8
+ [25] [TYPE_STRUCT]           	 (inline cell, <= 8 bytes)
+ [26] [TYPE_UNION]            	 (inline cell, <= 8 bytes)
+ [27] [TYPE_FUNC_PTR]         	 Addr  : 00007FF6E0071230
+ [28] [TYPE_FILE_PTR]         	 Addr  : 00007FF6E00B5140
+ [29] [TYPE_INT]              	 Value : 4242
+ [30] [TYPE_CHAR]             	 Value : 'v'
+------------------------------------------------------------------------
+
+[peek] [TYPE_CHAR]             	 Value : 'v'
+[iPushIntArrayStack] Bulk-pushed 2/2 int(s).
+[iPushFloatArrayStack] Bulk-pushed 1/1 float(s).
+
+=== Initializing Table (stack) ===
+[vGetTableStack] Table initialized (Capacity: 48).
+
+[bCloneTableStack] Cloned 35 slot(s).
+
+=== Popping Slot (stack) ===
+[sPopSlotStack] Extracted element at index 34 (Type Tag: 2).
+[sPopSlotStack] Slot index 34 sanitized. Remaining active count: 34
+
+--- Dropping Table (stack) ---
+[vDropTableStack] Zeroing 33 active slot(s).
+--- Table (stack) Reset Complete ---
+
+
+=== Popping Slot (stack) ===
+[sPopSlotStack] Underflow Error: Cannot pop from an empty or NULL table!
+
+--- Dropping Table (stack) ---
+[vDropTableStack] Zeroing 35 active slot(s).
+--- Table (stack) Reset Complete ---
+
+
+=== TableList (heap doubly-linked list) ===
+[tPushIntsBack] Bulk-pushed 3 int(s).
+=== TableList Contents (Count: 13) ===
+  [Node 00] Type Tag: 1
+  [Node 01] Type Tag: 1
+  [Node 02] Type Tag: 1
+  [Node 03] Type Tag: 3
+  [Node 04] Type Tag: 3
+  [Node 05] Type Tag: 4
+  [Node 06] Type Tag: 4
+  [Node 07] Type Tag: 1
+  [Node 08] Type Tag: 2
+  [Node 09] Type Tag: 3
+  [Node 10] Type Tag: 4
+  [Node 11] Type Tag: 5
+  [Node 12] Type Tag: 6
+======================================
+[vReverseList] Topology successfully inverted.
+[tDestroyList] Teardown complete. 13 node(s) freed.
+
+=== StackTableList (pool-backed linked list) ===
+[tStackPushIntListBack] Bulk-pushed 2 int(s).
+=== StackTableList Contents (Count: 12) ===
+  [Node 00] Type Tag: 1
+  [Node 01] Type Tag: 1
+  [Node 02] Type Tag: 3
+  [Node 03] Type Tag: 3
+  [Node 04] Type Tag: 4
+  [Node 05] Type Tag: 4
+  [Node 06] Type Tag: 1
+  [Node 07] Type Tag: 2
+  [Node 08] Type Tag: 3
+  [Node 09] Type Tag: 4
+  [Node 10] Type Tag: 5
+  [Node 11] Type Tag: 6
+======================================
+[vStackReverseList] Topology successfully inverted.
+[tStackDestroyList] Teardown complete. 12 node(s) returned to the pool.
+
+=== TableMap (hash map) ===
+
+=== Initializing TableMap ===
+[vFormHashMap] Initialization successful. Capacity: 1024 | Table Size: 67
+
+
+========================================================================
+  TABLEMAP CONTENTS  |  Active: 18   |  Capacity: 1024  |  Buckets: 67 
+========================================================================
+ [pool 0000] type=INT        ptr=00000219E38BC7F0 next=0 prev=0
+ [pool 0001] type=INT        ptr=00000219E38BC810 next=1 prev=1
+ [pool 0002] type=FLOAT      ptr=00000219E38BC830 next=2 prev=2
+ [pool 0003] type=DOUBLE     ptr=00000219E38BC850 next=3 prev=3
+ [pool 0004] type=LONG       ptr=00000219E38BC870 next=4 prev=4
+ [pool 0005] type=SHORT      ptr=00000219E38BC890 next=5 prev=5
+ [pool 0006] type=CHAR       ptr=00000219E38BC8B0 next=6 prev=6
+ [pool 0007] type=INT*       ptr=00000219E38BC8D0 next=7 prev=7
+ [pool 0008] type=INT**      ptr=00000219E38BC8F0 next=8 prev=8
+ [pool 0009] type=POINTER/OTHER ptr=00000219E38BC910 next=9 prev=9
+ [pool 0010] type=STRUCT     ptr=00000219E38A3A70 next=10 prev=10
+ [pool 0011] type=UNION      ptr=00000219E38BC930 next=11 prev=11
+ [pool 0012] type=FUNC_PTR   ptr=00007FF6E0078020 next=12 prev=12
+ [pool 0013] type=FILE_PTR   ptr=00007FF6E00B50E8 next=13 prev=13
+ [pool 0014] type=INT        ptr=00000219E38BC950 next=14 prev=14
+ [pool 0015] type=FLOAT      ptr=00000219E38BC970 next=15 prev=15
+ [pool 0016] type=STRUCT     ptr=00000219E38A3770 next=16 prev=16
+ [pool 0017] type=FUNC_PTR   ptr=00007FF6E0071240 next=17 prev=17
+------------------------------------------------------------------------
+
+
+========================================================================
+  TABLEMAP BUCKET HISTOGRAM  |  Buckets: 67   |  Active: 18 
+========================================================================
+ [bucket 05] # (1)
+ [bucket 07] # (1)
+ [bucket 09] # (1)
+ [bucket 13] # (1)
+ [bucket 22] # (1)
+ [bucket 23] # (1)
+ [bucket 25] # (1)
+ [bucket 29] # (1)
+ [bucket 32] # (1)
+ [bucket 33] # (1)
+ [bucket 34] # (1)
+ [bucket 37] # (1)
+ [bucket 38] # (1)
+ [bucket 42] # (1)
+ [bucket 43] # (1)
+ [bucket 51] # (1)
+ [bucket 52] # (1)
+ [bucket 62] # (1)
+------------------------------------------------------------------------
+ Used buckets: 18/67  |  Longest chain: 1  |  Avg chain (used): 1.00
+------------------------------------------------------------------------
+
+
+=== Initializing TableMap ===
+[vFormHashMap] Initialization successful. Capacity: 1024 | Table Size: 67
+
+[bCloneTableMap] Warning: skipped pool index 10 - TYPE_STRUCT/TYPE_UNION size isn't tracked in TableSlot_HM, can't clone safely.
+[bCloneTableMap] Warning: skipped pool index 11 - TYPE_STRUCT/TYPE_UNION size isn't tracked in TableSlot_HM, can't clone safely.
+[bCloneTableMap] Warning: skipped pool index 16 - TYPE_STRUCT/TYPE_UNION size isn't tracked in TableSlot_HM, can't clone safely.
+
+=== Initializing TableMap ===
+[vFormHashMap] Initialization successful. Capacity: 1024 | Table Size: 67
+
+[bMapMergeInto] Warning: skipped pool index 10 - TYPE_STRUCT/TYPE_UNION size isn't tracked in TableSlot_HM, can't merge safely.
+[bMapMergeInto] Warning: skipped pool index 11 - TYPE_STRUCT/TYPE_UNION size isn't tracked in TableSlot_HM, can't merge safely.
+[bMapMergeInto] Warning: skipped pool index 16 - TYPE_STRUCT/TYPE_UNION size isn't tracked in TableSlot_HM, can't merge safely.
+[bMapMergeInto] Warning: skipped pool index 10 - TYPE_STRUCT/TYPE_UNION size isn't tracked in TableSlot_HM, can't merge safely.
+[bMapMergeInto] Warning: skipped pool index 11 - TYPE_STRUCT/TYPE_UNION size isn't tracked in TableSlot_HM, can't merge safely.
+[bMapMergeInto] Warning: skipped pool index 16 - TYPE_STRUCT/TYPE_UNION size isn't tracked in TableSlot_HM, can't merge safely.
+
+=== Initializing TableMap ===
+[vFormHashMap] Initialization successful. Capacity: 1024 | Table Size: 67
+
+[vDropHashMap] TableMap dropped and owned payloads released.
+
+=== Initializing TableMap ===
+[vFormHashMap] Initialization successful. Capacity: 1024 | Table Size: 67
+
+[vDropHashMap] TableMap dropped and owned payloads released.
+
+=== Initializing TableMap ===
+[vFormHashMap] Initialization successful. Capacity: 1024 | Table Size: 67
+
+[vDropHashMap] TableMap dropped and owned payloads released.
+
+=== Initializing TableMap ===
+[vFormHashMap] Initialization successful. Capacity: 1024 | Table Size: 67
+
+[vDropHashMap] TableMap dropped and owned payloads released.
+
+========================================================
+ RESULTS: 305/305 checks passed  (all passed)
+========================================================

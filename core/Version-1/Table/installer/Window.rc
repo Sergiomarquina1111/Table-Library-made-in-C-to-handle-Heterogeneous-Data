@@ -1,0 +1,3 @@
+#include"header.h"
+
+MYICON ICON MY.ico

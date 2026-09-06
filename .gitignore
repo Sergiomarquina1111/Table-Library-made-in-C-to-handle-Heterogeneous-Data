@@ -1,0 +1,71 @@
+# ====================================================================
+# UNIVERSAL .GITIGNORE FOR C, C++, VISUAL STUDIO, & PYTHON
+# ====================================================================
+
+# --- Visual Studio Internal Files & Caches ---
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.aps
+*.ncb
+*.VC.db
+*.VC.opendb
+
+# --- C/C++ Compiler Outputs & Build Artifacts ---
+# Object files and libraries
+*.obj
+*.o
+*.lib
+*.a
+*.pdb
+*.ilk
+*.exp
+*.dll
+*.so
+*.dylib
+
+# Precompiled Headers
+*.pch
+
+# Build Directories (MSVC defaults)
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+ARM/
+ARM64/
+
+# --- CMake & Build Systems ---
+CMakeCache.txt
+CMakeFiles/
+CMakeSettings.json
+CMakeUserPresets.json
+/build/
+/out/
+
+# --- Python & CPython Internals ---
+# Bytecompiled / optimized / DLL templates
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Python virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- Operating System Junk ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store"*.blend" 
