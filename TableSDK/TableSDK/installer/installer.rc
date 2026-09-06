@@ -1,0 +1,40 @@
+#include "resource.h"
+#include <windows.h>
+
+// Embed the manifest so Common Controls v6 (visual styles) is used without
+// requiring a separate .manifest file next to the exe.
+//1 24 "app.manifest"
+
+// Embed the SDK payload directly into the exe so installer.exe is a single,
+// fully self-contained file - no folder needs to travel with it.
+// table.lib is a 0-byte placeholder until a real MSVC build replaces it;
+// the installer treats a 0-byte resource as "not available".
+ID_RES_HEADER    RCDATA "payload/include/table.h"
+ID_RES_MSVC_LIB  RCDATA "payload/lib/msvc/table.lib"
+ID_RES_MINGW_LIB RCDATA "payload/lib/mingw/libtable.a"
+
+IDD_MAIN DIALOGEX 0, 0, 260, 160
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Table SDK Setup"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    LTEXT           "Table SDK", IDC_TITLE, 10, 8, 240, 12
+    LTEXT           "Install location:", -1, 10, 26, 240, 8
+
+    EDITTEXT        IDC_PATH_EDIT, 10, 37, 175, 14, ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse...", IDC_BROWSE, 190, 36, 60, 14
+
+    CONTROL         "Install for MSVC (table.lib)", IDC_CHK_MSVC, "Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP, 10, 60, 220, 12
+
+    CONTROL         "Install for MinGW-w64 (libtable.a)", IDC_CHK_MINGW, "Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP, 10, 76, 220, 12
+
+    CONTROL         "", IDC_PROGRESS, "msctls_progress32",
+                    WS_BORDER | WS_TABSTOP, 10, 100, 240, 12
+
+    LTEXT           "", IDC_STATUS, 10, 116, 240, 10
+
+    DEFPUSHBUTTON   "Install", IDC_INSTALL, 90, 136, 70, 16
+    PUSHBUTTON      "Cancel", IDCANCEL, 165, 136, 70, 16
+END
