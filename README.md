@@ -163,11 +163,13 @@ Being upfront about what hasn't been fully hardened yet:
 ## Repository layout
 
 ```
-source/                 canonical table.h / table.c
-include/, payload/include/   duplicate copies of table.h for packaging
-dist/, payload/lib/     prebuilt static libraries per platform (see table above)
-scripts/                per-platform build scripts (build_msvc.bat, build_mingw.bat, build_linux.sh, build_macos.sh)
-installer.cpp, unix/    Windows/Unix installer sources that embed the payload
+Inside TableSDK folder
+|
+include/table.h         Public header (single file)
+src/table.cpp           Implementation
+scripts/                build_msvc.bat, build_mingw.bat, build_linux.sh
+linux/install.sh        System-wide Linux installer
+installer/              Win32 GUI installer source (Table.exe)
+dist/                   Build output per toolchain
+MANUAL.docx             Full API reference and troubleshooting guide
 ```
-
-See `MANUAL.docx` for the full API reference.
