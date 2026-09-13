@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Builds dist/linux/libtable.a from src/table.c
+# Builds dist/macos/libtable.a from src/table.c
+# You didn't ask for this one, but it's the same pattern as build_linux.sh -
+# included since Table SDK targets macOS too. Delete it if you don't need it.
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$SCRIPT_DIR"
 
-# table.c is plain C, so this uses CC (defaulting to gcc), not CXX/g++ -
-# same reasoning as build_mingw.bat. Override with `CC=clang ./build_linux.sh`
-# if you want a specific compiler.
-CC="${CC:-gcc}"
-OUT="dist/linux"
+# Apple ships clang as `cc`; only overridden here if you explicitly set CC.
+CC="${CC:-cc}"
+OUT="dist/macos"
 mkdir -p "$OUT"
 
 echo "Compiling with $CC ..."

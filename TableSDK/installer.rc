@@ -16,11 +16,13 @@
 
 // Embed the SDK payload directly into the exe so installer.exe is a single,
 // fully self-contained file - no folder needs to travel with it.
-// table.lib is a 0-byte placeholder until a real MSVC build replaces it;
-// the installer treats a 0-byte resource as "not available".
-ID_RES_HEADER    RCDATA "payload/include/table.h"
-ID_RES_MSVC_LIB  RCDATA "payload/lib/msvc/table.lib"
-ID_RES_MINGW_LIB RCDATA "payload/lib/mingw/libtable.a"
+// Any of these that's a 0-byte placeholder is treated by the installer as
+// "not available" and simply skipped (see EmbeddedResourceSize checks).
+ID_RES_HEADER        RCDATA "payload/include/table.h"
+ID_RES_MSVC_LIB_X64  RCDATA "payload/lib/msvc/x64/table.lib"
+ID_RES_MSVC_LIB_X86  RCDATA "payload/lib/msvc/x86/table.lib"
+ID_RES_MINGW_LIB_X64 RCDATA "payload/lib/mingw/x64/libtable.a"
+ID_RES_MINGW_LIB_X86 RCDATA "payload/lib/mingw/x86/libtable.a"
 
 IDD_MAIN DIALOGEX 0, 0, 260, 160
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU

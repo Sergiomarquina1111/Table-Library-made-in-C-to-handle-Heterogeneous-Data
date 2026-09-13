@@ -4,14 +4,19 @@
 #include <math.h>
 #include <limits.h>
 
-// Global instance 
+// Global instance
+// NOTE: g_MasterArena is process-wide, mutable, unsynchronized state. pAllocArena()/
+// vFreeArena() do not take a lock, so concurrent calls from multiple threads without
+// external synchronization can race on the same BoundaryTag and corrupt the arena.
+// If you need to use the arena from more than one thread, guard all pAllocArena()/
+// vFreeArena() calls with your own mutex.
 MemoryArena g_MasterArena = { NULL, 0 };
 
 #define ARENA_MIN_SPLIT (2 * sizeof(BoundaryTag) + 8)
 
 extern void* pAllocArena(size_t size)
 {
-    if (size == 0) 
+    if (size == 0)
         return NULL;
 
     if (g_MasterArena.pool == NULL)
@@ -19,6 +24,17 @@ extern void* pAllocArena(size_t size)
 
     size_t payload = ARENA_ALIGN(size);
     size_t chunk_needed = payload + 2 * sizeof(BoundaryTag);
+
+    // Same truncation hazard as in vGetTable(): a single request whose chunk
+    // size doesn't fit in the tag's uint32_t would otherwise get silently
+    // wrapped and corrupt whatever sits at the (wrong) computed footer
+    // offset. Bypass the arena for this one request instead.
+    if (chunk_needed > UINT32_MAX)
+    {
+        printf("[pAllocArena] Warning: requested %zu bytes needs a chunk larger than a "
+            "BoundaryTag can address - falling back to malloc().\n", size);
+        return malloc(size);
+    }
 
     uint8_t* cursor = g_MasterArena.pool;
     uint8_t* end = g_MasterArena.pool + g_MasterArena.capacity;
@@ -119,7 +135,11 @@ extern void vFreeArena(void* ptr)
 
     // Coalesce left: if the chunk immediately before this one is free, merge into it.
     // The footer of that left neighbor sits right before our header - O(1) to check.
-    if (chunk_start - sizeof(BoundaryTag) >= arena_start)
+    // Written as an offset comparison rather than `chunk_start - sizeof(BoundaryTag) >=
+    // arena_start`: when chunk_start IS the arena's first chunk, that subtraction forms
+    // a pointer before the start of the allocated block purely to compare it, which is
+    // undefined behavior in C even though no real compiler misbehaves on it today.
+    if ((size_t)(chunk_start - arena_start) >= sizeof(BoundaryTag))
     {
         BoundaryTag* left_foot = (BoundaryTag*)(chunk_start - sizeof(BoundaryTag));
         if (left_foot->is_free)
@@ -136,6 +156,25 @@ extern void vFreeArena(void* ptr)
             merged_foot->is_free = 1;
         }
     }
+}
+
+// Releases the Global Master Arena's backing malloc() block and resets the singleton
+// to its unmapped state, so a later vGetTable(..., arena_bytes) call can map a fresh
+// (possibly differently-sized) arena. Not previously exposed - g_MasterArena.pool was
+// otherwise never freed for the lifetime of the process (harmless "still reachable" at
+// exit under valgrind/ASan, but blocked re-initializing the arena at a new size).
+// NOT safe to call while any Table/TableMap slot still points into the arena - every
+// such pointer becomes dangling the instant this returns. Call it only after every
+// Table/TableStack/TableMap that used the arena has already been dropped.
+extern void vDropArena(void)
+{
+    if (g_MasterArena.pool == NULL) return;
+
+    free(g_MasterArena.pool);
+    g_MasterArena.pool = NULL;
+    g_MasterArena.capacity = 0;
+
+    printf("[vDropArena] Global Master Arena released.\n");
 }
 
 // True if this type tag's ptr is Table-owned heap memory that must be freed on drop/remove.
@@ -238,26 +277,45 @@ extern void vGetTable(Table* obj, int total_slots, size_t arena_bytes)
     // Only fires if the engine hasn't mapped the contiguous block yet.
     if (g_MasterArena.pool == NULL && arena_bytes > 0)
     {
-        g_MasterArena.capacity = ARENA_ALIGN(arena_bytes);
-        g_MasterArena.pool = (uint8_t*)malloc(g_MasterArena.capacity);
+        size_t aligned_capacity = ARENA_ALIGN(arena_bytes);
 
-        if (g_MasterArena.pool)
+        // BoundaryTag.size is a uint32_t, but arena_bytes/capacity are size_t.
+        // On a 64-bit build a caller could ask for >= 4 GiB; silently storing
+        // (uint32_t)aligned_capacity into the header/footer would wrap around
+        // and every subsequent chunk-walk/footer offset computed from that
+        // truncated value would land in the wrong place - corrupting memory
+        // instead of just "being wrong". Refuse to map an arena that can't be
+        // represented exactly and fall back to plain malloc() for every push
+        // instead (same fallback path already used when the arena is absent).
+        if (aligned_capacity > UINT32_MAX)
         {
-            // Set Master Header
-            BoundaryTag* head = (BoundaryTag*)g_MasterArena.pool;
-            head->size = (uint32_t)g_MasterArena.capacity;
-            head->is_free = 1;
-
-            // Set Master Footer
-            BoundaryTag* foot = (BoundaryTag*)(g_MasterArena.pool + g_MasterArena.capacity - sizeof(BoundaryTag));
-            foot->size = (uint32_t)g_MasterArena.capacity;
-            foot->is_free = 1;
-
-            printf("[vGetTable] Global Master Arena mapped: %zu bytes.\n", g_MasterArena.capacity);
+            printf("[vGetTable] Warning: requested arena of %zu bytes exceeds the %u-byte "
+                "limit a BoundaryTag can address - arena NOT mapped, falling back to "
+                "malloc() for all allocations.\n", arena_bytes, (unsigned)UINT32_MAX);
         }
         else
         {
-            printf("[vGetTable] Warning: Failed to allocate Global Master Arena.\n");
+            g_MasterArena.capacity = aligned_capacity;
+            g_MasterArena.pool = (uint8_t*)malloc(g_MasterArena.capacity);
+
+            if (g_MasterArena.pool)
+            {
+                // Set Master Header
+                BoundaryTag* head = (BoundaryTag*)g_MasterArena.pool;
+                head->size = (uint32_t)g_MasterArena.capacity;
+                head->is_free = 1;
+
+                // Set Master Footer
+                BoundaryTag* foot = (BoundaryTag*)(g_MasterArena.pool + g_MasterArena.capacity - sizeof(BoundaryTag));
+                foot->size = (uint32_t)g_MasterArena.capacity;
+                foot->is_free = 1;
+
+                printf("[vGetTable] Global Master Arena mapped: %zu bytes.\n", g_MasterArena.capacity);
+            }
+            else
+            {
+                printf("[vGetTable] Warning: Failed to allocate Global Master Arena.\n");
+            }
         }
     }
 
@@ -507,7 +565,7 @@ extern void vPrintTable(const Table* obj)
             break;
         }
 
-                                 // -- user-defined / complex: no generic way to format contents, print address --
+                                   // -- user-defined / complex: no generic way to format contents, print address --
         case TYPE_STRUCT:
             printf("[TYPE_STRUCT]          \t Addr  : %p (User Managed)\n", payload);
             break;
@@ -857,7 +915,7 @@ extern TableSlot_DA sPopSlot(Table* obj)
     if (obj == NULL || obj->count == 0)
     {
         printf("[sPopSlot] Underflow Error: Cannot pop from an empty or NULL collection!\n");
-        return { NULL, TYPE_EMPTY };
+        return (TableSlot_DA) { NULL, TYPE_EMPTY };
     }
 
     obj->count--;
@@ -1028,7 +1086,7 @@ extern TableSlot_DA sPopSlot(Table* obj)
 
     printf("[sPopSlot] Slot index %d sanitized. Remaining active count: %d\n", top_index, obj->count);
 
-    return { new_data, original.type };
+    return (TableSlot_DA) { new_data, original.type };
 }
 
 /* ============================== TEARDOWN ============================== */
@@ -1305,7 +1363,7 @@ extern TableSlot_DA sGetSlotAtTable(const Table* obj, int index)
     if (obj == NULL || index < 0 || index >= obj->count)
     {
         printf("[sGetSlotAtTable] Error: index %d out of range (count=%d).\n", index, obj ? obj->count : -1);
-        return { NULL, TYPE_EMPTY };
+        return (TableSlot_DA) { NULL, TYPE_EMPTY };
     }
     return obj->slots[index];
 }
@@ -6204,4 +6262,266 @@ extern void vPrintHashMap(const TableMap* map)
     }
 
     printf("------------------------------------------------------------------------\n\n");
+}
+
+/* ======================================================================== */
+/* ==================== COLLECTION EXTENSIONS (impl) ===================== */
+/* Sort / filter / transform helpers declared in the extensions section of  */
+/* table.h. Built purely on the public Table API above.                     */
+/* ======================================================================== */
+
+#include <stdlib.h>
+#include <string.h>
+
+/* Mirrors the private bTypeKnownSize() switch inside table.c, using only the
+ * public DATA_TYPE/POINTERS/etc. enum values - needed here because filter's
+ * deep-copy has to know how many bytes to duplicate for owned types, and
+ * that table isn't exposed across the module boundary. */
+static bool bKnownOwnedSize(short type, size_t* out_size)
+{
+    switch (type)
+    {
+    case TYPE_INT:    *out_size = sizeof(int);    return true;
+    case TYPE_FLOAT:  *out_size = sizeof(float);  return true;
+    case TYPE_DOUBLE: *out_size = sizeof(double); return true;
+    case TYPE_LONG:   *out_size = sizeof(long);   return true;
+    case TYPE_SHORT:  *out_size = sizeof(short);  return true;
+    case TYPE_CHAR:   *out_size = sizeof(char);   return true;
+
+    case TYPE_NULL:
+    case TYPE_VOID_STAR:
+    case TYPE_INT_STAR:
+    case TYPE_FLOAT_STAR:
+    case TYPE_CHAR_STAR:
+    case TYPE_DOUBLE_STAR:
+    case TYPE_LONG_STAR:
+    case TYPE_SHORT_STAR:
+        *out_size = sizeof(void*);
+        return true;
+
+    case TYPE_NULL_DOUBLE:
+    case TYPE_VOID_STAR_DOUBLE:
+    case TYPE_INT_STAR_DOUBLE:
+    case TYPE_FLOAT_STAR_DOUBLE:
+    case TYPE_CHAR_STAR_DOUBLE:
+    case TYPE_DOUBLE_STAR_DOUBLE:
+    case TYPE_LONG_STAR_DOUBLE:
+    case TYPE_SHORT_STAR_DOUBLE:
+        *out_size = sizeof(void**);
+        return true;
+
+    case TYPE_NULL_TRIPLE:
+    case TYPE_VOID_STAR_TRIPLE:
+    case TYPE_INT_STAR_TRIPLE:
+    case TYPE_FLOAT_STAR_TRIPLE:
+    case TYPE_CHAR_STAR_TRIPLE:
+    case TYPE_DOUBLE_STAR_TRIPLE:
+    case TYPE_LONG_STAR_TRIPLE:
+    case TYPE_SHORT_STAR_TRIPLE:
+        *out_size = sizeof(void***);
+        return true;
+
+    default:
+        return false; /* TYPE_STRUCT / TYPE_UNION / non-owned types */
+    }
+}
+
+/* ------------------------------- FOREACH -------------------------------- */
+/* (macros only - nothing to implement here) */
+
+/* ------------------------------- SORTING -------------------------------- */
+
+extern bool bSlotAsNumber(TableSlot_DA slot, double* out)
+{
+    if (out == NULL || slot.ptr == NULL) return false;
+
+    switch (slot.type)
+    {
+    case TYPE_INT:    *out = (double)(*(int*)slot.ptr);    return true;
+    case TYPE_FLOAT:  *out = (double)(*(float*)slot.ptr);  return true;
+    case TYPE_DOUBLE: *out = (double)(*(double*)slot.ptr); return true;
+    case TYPE_LONG:   *out = (double)(*(long*)slot.ptr);   return true;
+    case TYPE_SHORT:  *out = (double)(*(short*)slot.ptr);  return true;
+    case TYPE_CHAR:   *out = (double)(*(char*)slot.ptr);   return true;
+    default:          return false;
+    }
+}
+
+extern int iCompareSlotsNumericAsc(const TableSlot_DA* a, const TableSlot_DA* b)
+{
+    double av = 0.0, bv = 0.0;
+    bool an = bSlotAsNumber(*a, &av);
+    bool bn = bSlotAsNumber(*b, &bv);
+
+    if (an && bn)
+    {
+        if (av < bv) return -1;
+        if (av > bv) return 1;
+        return 0;
+    }
+    if (an && !bn) return -1;  /* numeric slots sort before non-numeric */
+    if (!an && bn) return 1;
+
+    /* Both non-numeric: fall back to type tag so the ordering is at least
+     * deterministic and transitive (required for a correct sort). */
+    if (a->type != b->type) return (a->type < b->type) ? -1 : 1;
+    return 0;
+}
+
+extern int iCompareSlotsNumericDesc(const TableSlot_DA* a, const TableSlot_DA* b)
+{
+    double av = 0.0, bv = 0.0;
+    bool an = bSlotAsNumber(*a, &av);
+    bool bn = bSlotAsNumber(*b, &bv);
+
+    if (an && bn)
+    {
+        if (av > bv) return -1;
+        if (av < bv) return 1;
+        return 0;
+    }
+    if (an && !bn) return -1;  /* numeric still first regardless of direction */
+    if (!an && bn) return 1;
+
+    if (a->type != b->type) return (a->type < b->type) ? -1 : 1;
+    return 0;
+}
+
+/* Bottom-up stable merge sort. Avoids qsort_r/qsort_s, whose signatures
+ * differ between glibc, BSD/macOS, and MSVC - a plain hand-rolled merge
+ * sort behaves identically on every target instead of needing #ifdef forks
+ * for three incompatible "sort with context" APIs. */
+static void merge_da(TableSlot_DA* arr, TableSlot_DA* tmp, int lo, int mid, int hi, TableComparator cmp)
+{
+    int i = lo, j = mid, k = lo;
+    while (i < mid && j < hi)
+        tmp[k++] = (cmp(&arr[i], &arr[j]) <= 0) ? arr[i++] : arr[j++];
+    while (i < mid) tmp[k++] = arr[i++];
+    while (j < hi)  tmp[k++] = arr[j++];
+    memcpy(arr + lo, tmp + lo, (size_t)(hi - lo) * sizeof(TableSlot_DA));
+}
+
+extern bool vSortTable(Table* obj, TableComparator cmp)
+{
+    if (obj == NULL || cmp == NULL || obj->count < 2) return (obj != NULL);
+
+    TableSlot_DA* tmp = (TableSlot_DA*)malloc((size_t)obj->count * sizeof(TableSlot_DA));
+    if (tmp == NULL)
+    {
+        printf("[vSortTable] Error: malloc failed allocating %d-slot scratch buffer.\n", obj->count);
+        return false;
+    }
+
+    for (int width = 1; width < obj->count; width *= 2)
+    {
+        for (int lo = 0; lo < obj->count; lo += 2 * width)
+        {
+            int mid = lo + width;
+            int hi = lo + 2 * width;
+            if (mid > obj->count) mid = obj->count;
+            if (hi > obj->count) hi = obj->count;
+            if (mid < hi) merge_da(obj->slots, tmp, lo, mid, hi, cmp);
+        }
+    }
+
+    free(tmp);
+    return true;
+}
+
+static void merge_sa(TableSlot_SA* arr, TableSlot_SA* tmp, int lo, int mid, int hi, TableStackComparator cmp)
+{
+    int i = lo, j = mid, k = lo;
+    while (i < mid && j < hi)
+        tmp[k++] = (cmp(&arr[i], &arr[j]) <= 0) ? arr[i++] : arr[j++];
+    while (i < mid) tmp[k++] = arr[i++];
+    while (j < hi)  tmp[k++] = arr[j++];
+    memcpy(arr + lo, tmp + lo, (size_t)(hi - lo) * sizeof(TableSlot_SA));
+}
+
+extern bool vSortTableStack(TableStack* obj, TableStackComparator cmp)
+{
+    if (obj == NULL || cmp == NULL || obj->count < 2) return (obj != NULL);
+
+    TableSlot_SA* tmp = (TableSlot_SA*)malloc((size_t)obj->count * sizeof(TableSlot_SA));
+    if (tmp == NULL)
+    {
+        printf("[vSortTableStack] Error: malloc failed allocating %d-slot scratch buffer.\n", obj->count);
+        return false;
+    }
+
+    for (int width = 1; width < obj->count; width *= 2)
+    {
+        for (int lo = 0; lo < obj->count; lo += 2 * width)
+        {
+            int mid = lo + width;
+            int hi = lo + 2 * width;
+            if (mid > obj->count) mid = obj->count;
+            if (hi > obj->count) hi = obj->count;
+            if (mid < hi) merge_sa(obj->slots, tmp, lo, mid, hi, cmp);
+        }
+    }
+
+    free(tmp);
+    return true;
+}
+
+/* -------------------------------- FILTER --------------------------------- */
+
+extern bool bFilterTable(const Table* src, Table* dest, TablePredicate pred, void* ctx)
+{
+    if (src == NULL || dest == NULL || pred == NULL) return false;
+
+    for (int i = 0; i < src->count; i++)
+    {
+        const TableSlot_DA* s = &src->slots[i];
+        if (!pred(s, ctx)) continue;
+
+        if (!bIsOwnedTypeTable(s->type) || s->ptr == NULL)
+        {
+            /* Raw/user-managed reference: copy the pointer as-is, same as bCloneTable. */
+            TableSlot_DA copy = { s->ptr, s->type };
+            if (!bPushSlot(dest, copy))
+            {
+                printf("[bFilterTable] Error: push failed at source index %d.\n", i);
+                return false;
+            }
+            continue;
+        }
+
+        size_t sz;
+        if (!bKnownOwnedSize(s->type, &sz))
+        {
+            printf("[bFilterTable] Warning: skipped index %d - TYPE_STRUCT/TYPE_UNION size "
+                "isn't tracked, can't deep-copy safely. Clone it manually if you need it kept.\n", i);
+            continue;
+        }
+
+        void* copy_ptr = pAllocArena(sz);
+        if (copy_ptr == NULL)
+        {
+            printf("[bFilterTable] Error: allocation failed duplicating %zu bytes at index %d.\n", sz, i);
+            return false;
+        }
+        memcpy(copy_ptr, s->ptr, sz);
+
+        TableSlot_DA copy = { copy_ptr, s->type };
+        if (!bPushSlot(dest, copy))
+        {
+            vFreeArena(copy_ptr);
+            printf("[bFilterTable] Error: push failed at source index %d.\n", i);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/* ------------------------------- TRANSFORM -------------------------------- */
+
+extern void vTransformTable(const Table* src, Table* dest, TableTransform fn, void* ctx)
+{
+    if (src == NULL || dest == NULL || fn == NULL) return;
+
+    for (int i = 0; i < src->count; i++)
+        fn(&src->slots[i], dest, ctx);
 }
