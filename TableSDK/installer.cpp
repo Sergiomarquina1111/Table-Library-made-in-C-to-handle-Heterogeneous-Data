@@ -6,15 +6,32 @@
 // installer.rc + installer/payload/) - nothing needs to travel alongside
 // installer.exe at distribution time.
 //
-// It writes the requested files into the chosen install directory and
-// updates HKEY_CURRENT_USER\Environment so a new cl.exe / g++ invocation
-// picks up the header and lib automatically:
+// Both x64 and x86 builds of table.lib / libtable.a are embedded and, when
+// present (non-zero size - a 0-byte resource means that architecture was
+// never built), installed side by side:
 //
-//   INCLUDE               += <install>\include              (MSVC)
-//   LIB                    += <install>\lib\msvc              (MSVC)
-//   C_INCLUDE_PATH         += <install>\include              (MinGW)
-//   CPLUS_INCLUDE_PATH     += <install>\include              (MinGW)
-//   LIBRARY_PATH           += <install>\lib\mingw             (MinGW)
+//   <install>\lib\msvc\x64\table.lib      <install>\lib\msvc\x86\table.lib
+//   <install>\lib\mingw\x64\libtable.a    <install>\lib\mingw\x86\libtable.a
+//
+// It updates HKEY_CURRENT_USER\Environment so a plain `cl file.c` /
+// `gcc file.c -ltable` just works with no extra flags, for both toolchains:
+//
+//   INCLUDE               += <install>\include                 (MSVC)
+//   LIB                    += <install>\lib\msvc\x64             (MSVC, x64 only - see below)
+//   C_INCLUDE_PATH         += <install>\include                 (MinGW)
+//   CPLUS_INCLUDE_PATH     += <install>\include                 (MinGW)
+//   LIBRARY_PATH           += <install>\lib\mingw\x64;<install>\lib\mingw\x86  (MinGW, both)
+//
+// Why LIB only gets the x64 path but LIBRARY_PATH gets both: MinGW's ld
+// skips an incompatible-architecture archive when resolving -lname and
+// keeps searching subsequent -L paths, so listing both mingw dirs is safe
+// and correctly resolves to whichever one matches gcc.exe's actual target.
+// MSVC's link.exe has no such fallback - it takes the first table.lib it
+// finds by name regardless of architecture, which is exactly what produced
+// the LNK4272/LNK2019 errors this comment used to warn about. Auto-wiring
+// both x64 and x86 into LIB would silently reintroduce that bug, so only
+// x64 (the common case) is automatic; 32-bit MSVC needs one explicit
+// /LIBPATH override, called out in the post-install success message.
 //
 // No admin rights are required: everything happens under the current
 // user's profile and HKCU.
@@ -253,46 +270,77 @@ static std::string RunInstall(HWND hDlg, const InstallPlan& plan)
         return "Failed to write table.h to:\n" + headerDst;
     SetProgress(hDlg, 35);
 
+    // Writes one lib variant if it was actually built (non-zero embedded
+    // resource); silently skips it otherwise, exactly like the header/table.lib
+    // "0 bytes = not built for this toolchain" convention used elsewhere.
+    auto writeLibVariant = [&](int resId, const char* archLabel, const std::string& dst,
+                                const char* fileLabel) -> std::string
+    {
+        if (EmbeddedResourceSize(resId) == 0)
+            return ""; // not built for this architecture - nothing to do
+        SetStatus(hDlg, (std::string("Writing ") + fileLabel + " (" + archLabel + ")...").c_str());
+        if (!WriteResourceToFile(resId, dst))
+            return "Failed to write " + std::string(fileLabel) + " to:\n" + dst;
+        return "";
+    };
+
     if (plan.doMsvc)
     {
-        SetStatus(hDlg, "Writing table.lib (MSVC)...");
-        std::string dst = plan.installDir + "\\lib\\msvc\\table.lib";
-        if (!WriteResourceToFile(ID_RES_MSVC_LIB, dst))
-            return "Failed to write table.lib to:\n" + dst;
+        std::string err;
+        err = writeLibVariant(ID_RES_MSVC_LIB_X64, "MSVC x64", plan.installDir + "\\lib\\msvc\\x64\\table.lib", "table.lib");
+        if (!err.empty()) return err;
+        err = writeLibVariant(ID_RES_MSVC_LIB_X86, "MSVC x86", plan.installDir + "\\lib\\msvc\\x86\\table.lib", "table.lib");
+        if (!err.empty()) return err;
     }
     SetProgress(hDlg, 55);
 
     if (plan.doMingw)
     {
-        SetStatus(hDlg, "Writing libtable.a (MinGW)...");
-        std::string dst = plan.installDir + "\\lib\\mingw\\libtable.a";
-        if (!WriteResourceToFile(ID_RES_MINGW_LIB, dst))
-            return "Failed to write libtable.a to:\n" + dst;
+        std::string err;
+        err = writeLibVariant(ID_RES_MINGW_LIB_X64, "MinGW x64", plan.installDir + "\\lib\\mingw\\x64\\libtable.a", "libtable.a");
+        if (!err.empty()) return err;
+        err = writeLibVariant(ID_RES_MINGW_LIB_X86, "MinGW x86", plan.installDir + "\\lib\\mingw\\x86\\libtable.a", "libtable.a");
+        if (!err.empty()) return err;
     }
     SetProgress(hDlg, 75);
 
+    // MinGW's ld skips an incompatible-architecture archive automatically
+    // when resolving -ltable and keeps searching subsequent -L paths, so
+    // adding BOTH mingw dirs to LIBRARY_PATH is safe and "just works" for
+    // whichever architecture gcc.exe on PATH actually targets.
+    //
+    // MSVC's link.exe does NOT do that - it takes the first table.lib it
+    // finds by name regardless of architecture, which is exactly what
+    // produced the LNK4272/LNK2019 errors earlier. So only ONE msvc path
+    // can go in LIB automatically; x64 is added since that's the default
+    // architecture for the vast majority of setups. 32-bit MSVC users
+    // (already a deliberate choice - it requires opening the x86 Native
+    // Tools prompt specifically) need one explicit /LIBPATH override,
+    // which the success message spells out.
     SetStatus(hDlg, "Updating environment variables...");
     std::string includeDir = plan.installDir + "\\include";
 
     if (!AppendUserEnvPath("INCLUDE", includeDir))
         return "Failed to update INCLUDE.";
 
-    if (plan.doMsvc)
+    if (plan.doMsvc && EmbeddedResourceSize(ID_RES_MSVC_LIB_X64) > 0)
     {
-        std::string libDir = plan.installDir + "\\lib\\msvc";
-        if (!AppendUserEnvPath("LIB", libDir))
+        if (!AppendUserEnvPath("LIB", plan.installDir + "\\lib\\msvc\\x64"))
             return "Failed to update LIB.";
     }
 
     if (plan.doMingw)
     {
-        std::string libDir = plan.installDir + "\\lib\\mingw";
         if (!AppendUserEnvPath("C_INCLUDE_PATH", includeDir))
             return "Failed to update C_INCLUDE_PATH.";
         if (!AppendUserEnvPath("CPLUS_INCLUDE_PATH", includeDir))
             return "Failed to update CPLUS_INCLUDE_PATH.";
-        if (!AppendUserEnvPath("LIBRARY_PATH", libDir))
-            return "Failed to update LIBRARY_PATH.";
+        if (EmbeddedResourceSize(ID_RES_MINGW_LIB_X64) > 0)
+            if (!AppendUserEnvPath("LIBRARY_PATH", plan.installDir + "\\lib\\mingw\\x64"))
+                return "Failed to update LIBRARY_PATH.";
+        if (EmbeddedResourceSize(ID_RES_MINGW_LIB_X86) > 0)
+            if (!AppendUserEnvPath("LIBRARY_PATH", plan.installDir + "\\lib\\mingw\\x86"))
+                return "Failed to update LIBRARY_PATH.";
     }
 
     BroadcastEnvironmentChange();
@@ -313,8 +361,8 @@ static INT_PTR CALLBACK DlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPara
     {
         SetDlgItemTextA(hDlg, IDC_PATH_EDIT, DefaultInstallPath().c_str());
 
-        bool haveMsvc  = EmbeddedResourceSize(ID_RES_MSVC_LIB) > 0;
-        bool haveMingw = EmbeddedResourceSize(ID_RES_MINGW_LIB) > 0;
+        bool haveMsvc  = EmbeddedResourceSize(ID_RES_MSVC_LIB_X64) > 0  || EmbeddedResourceSize(ID_RES_MSVC_LIB_X86) > 0;
+        bool haveMingw = EmbeddedResourceSize(ID_RES_MINGW_LIB_X64) > 0 || EmbeddedResourceSize(ID_RES_MINGW_LIB_X86) > 0;
 
         HWND chkMsvc  = GetDlgItem(hDlg, IDC_CHK_MSVC);
         HWND chkMingw = GetDlgItem(hDlg, IDC_CHK_MINGW);
@@ -368,8 +416,14 @@ static INT_PTR CALLBACK DlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPara
                     "\n\nRestart any open terminal/IDE so it picks up the new "
                     "environment variables, then use:\n\n"
                     "  #include <table.h>\n";
-                if (plan.doMsvc)  msg += "  (MSVC)  link table.lib\n";
-                if (plan.doMingw) msg += "  (MinGW) link with -ltable\n";
+                if (plan.doMsvc  && EmbeddedResourceSize(ID_RES_MSVC_LIB_X64) > 0)
+                    msg += "  (MSVC, x64)   cl yourfile.c   -> just works\n";
+                if (plan.doMingw && (EmbeddedResourceSize(ID_RES_MINGW_LIB_X64) > 0 || EmbeddedResourceSize(ID_RES_MINGW_LIB_X86) > 0))
+                    msg += "  (MinGW, x64 or x86)  gcc yourfile.c -ltable   -> just works\n";
+                if (plan.doMsvc && EmbeddedResourceSize(ID_RES_MSVC_LIB_X86) > 0)
+                    msg += "\n32-bit MSVC (from an x86 Native Tools prompt) needs one explicit flag,\n"
+                           "since link.exe can't auto-pick between two architectures of table.lib:\n"
+                           "  cl yourfile.c /link /LIBPATH:\"" + plan.installDir + "\\lib\\msvc\\x86\"\n";
                 MessageBoxA(hDlg, msg.c_str(), "Table SDK Setup", MB_ICONINFORMATION);
                 EndDialog(hDlg, IDOK);
             }
