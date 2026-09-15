@@ -18,9 +18,68 @@
 // them. This only fires for MSVC; g++/clang ignore #pragma comment(lib,...)
 // entirely (it isn't a GCC extension), which is why GCC/MinGW users still
 // pass -ltable explicitly on the command line - LIBRARY_PATH (set by the
-// installer) lets them do that without an extra -L flag.
-#ifdef _MSC_VER
+// installer, detected to match your actual gcc.exe's architecture) lets
+// them do that without an extra -L flag.
+//
+// _M_X64/_M_IX86 are set by cl.exe itself based on what it's ACTUALLY
+// compiling for, unlike relying on which Native Tools prompt happened to
+// be open - so this always links the correct architecture's library. The
+// installer stages the 32-bit lib under a different filename
+// (table_x86.lib, not table.lib) specifically so both x64 and x86 can
+// safely sit on LIB at the same time without link.exe ever being able to
+// grab the wrong one by name collision.
+#if defined(_MSC_VER)
+#if defined(_M_X64)
 #pragma comment(lib, "table.lib")
+#elif defined(_M_IX86)
+#pragma comment(lib, "table_x86.lib")
+#endif
+#endif
+
+// --------------------------------------------------------------------------
+// Legacy-MinGW CRT compatibility shim.
+//
+// A prebuilt libtable.a compiled against the Universal C Runtime (UCRT)
+// references __acrt_iob_func() for stdio (printf/fprintf/etc). Some MinGW
+// distributions still target the older msvcrt.dll runtime and do not
+// export that symbol, which fails at link time with:
+//   undefined reference to `_imp____acrt_iob_func'
+//
+// This block supplies that symbol automatically, ONLY on a legacy
+// (non-UCRT) MinGW target, so the mismatch is fixed here in the header
+// instead of requiring every consumer to hand-write a shim. Everything
+// is `static` (internal linkage) so including table.h from multiple .c
+// files in the same project can never cause a duplicate-symbol error.
+// UCRT-based toolchains (MSYS2 ucrt64, modern Visual Studio) define
+// _UCRT and are unaffected - this is a no-op there.
+// --------------------------------------------------------------------------
+// _UCRT is defined by the Universal C Runtime - it reflects which CRT
+// is actually in use, which determines whether __acrt_iob_func exists.
+// Legacy msvcrt-based toolchains (like 32-bit mingw-w64 targeting msvcrt)
+// don't export it even though they're mingw-w64-based, so we key off
+// _UCRT instead of __MINGW64_VERSION_MAJOR.
+#if defined(_WIN32) && defined(__MINGW32__) && !defined(_UCRT)
+static inline FILE* __cdecl __acrt_iob_func(unsigned index)
+{
+    switch (index) {
+    case 0:  return stdin;
+    case 1:  return stdout;
+    case 2:  return stderr;
+    default: return NULL;
+    }
+}
+typedef FILE* (__cdecl* _f__acrt_iob_func)(unsigned);
+static _f__acrt_iob_func __imp____acrt_iob_func = __acrt_iob_func;
+
+// Some legacy-MinGW header sets never end up referencing
+// __imp____acrt_iob_func directly, which left it "defined but not used"
+// on those toolchains. This accessor gives it a real use-site so that
+// warning goes away, while the variable itself keeps its exact name,
+// value, and visibility for any header that DOES reference it directly.
+static inline _f__acrt_iob_func __table_acrt_iob_func_shim(void)
+{
+    return __imp____acrt_iob_func;
+}
 #endif
 
 #ifdef __cplusplus
@@ -435,7 +494,11 @@ extern "C" {
 #define PUSH_FUNC_STACK(obj, func_ptr)           bPushFuncStack((obj), (void*)(func_ptr))
 #define PUSH_FILE_STACK(obj, fp)                 bPushFileStack((obj), (fp))
 
-#define GET_STACK_VALUE(elem, T) (*(T*)&((elem).ptr))
+    // Reads sizeof(T) bytes out of the inline cell via memcpy instead of a
+    // pointer-cast-and-dereference. Byte-for-byte identical result to the old
+    // (*(T*)&((elem).ptr)) form, but memcpy is exempt from the C strict-aliasing
+    // rule, so this is well-defined instead of UB that merely happened to work.
+#define GET_STACK_VALUE(elem, T) (*(T*)memcpy(&(T){0}, &((elem).ptr), sizeof(T)))
 
     // Type-checked slot access for TableStack - same contract as bTryGetSlotAtTable():
     // false (untouched *out) on bad index or type-tag mismatch, true + copied slot on

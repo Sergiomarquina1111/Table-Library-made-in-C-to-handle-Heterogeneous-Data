@@ -1,173 +1,209 @@
-# Table SDK
+# VOIDSTAR / TABLE
 
-A generic, type-tagged container library for C. It gives you three collection
-types — a dynamic array/stack (`Table`), a fixed-capacity zero-malloc stack
-(`TableStack`), and a hash map (`TableMap`) — that can each hold heterogeneous
-C values (ints, floats, structs, unions, pointers, function pointers, file
-handles) side by side, tagged so the library always knows what it's holding.
-Underneath all three sits a custom boundary-tag memory arena with free-list
-splitting and coalescing, plus a small standard library of sort/filter/
-transform/foreach helpers layered on top.
+**Version 2.1** &nbsp;·&nbsp; A tagged, type-erased container library for C
 
-- **Language:** C (compiles clean under both `gcc`/`clang` and MSVC)
-- **Size:** ~1,180 lines of header, ~6,500 lines of implementation
-- **License:** add yours here
+TABLE gives you a small set of heterogeneous container types — a dynamic
+array, a zero-malloc fixed-capacity stack, a doubly-linked list, a
+stack-backed (zero-malloc) doubly-linked list, and an open-addressing-free
+hash map — that can each hold a mix of value types (`int`, `float`,
+`double`, `char`, `long`, `short`), pointer/double-pointer/triple-pointer
+wrappers, structs, unions, function pointers, and `FILE*` streams, side by
+side in the same container, with a type tag carried alongside every slot.
+
+Pure C (C11), no C++ required. Ships prebuilt for MSVC and MinGW, both
+x86 and x64.
+
+---
 
 ## Why
 
-C has no built-in way to say "a list of mixed types" without either giving up
-type safety entirely (`void*` everywhere, hope for the best) or hand-rolling a
-tagged union for every combination of types you need. Table SDK does the
-tagging once, generically, so a single `Table` can hold an `int`, a `double`,
-a `struct Point`, and a `FILE*` in adjacent slots, and code that walks the
-table can always ask "what's actually in this slot" before touching it.
+C has no generics and no `std::any`. TABLE is a from-scratch answer to
+"I want one container that can hold different types safely," built around
+a tagged slot (`{ void* ptr; short type; }`) instead of templates —
+every push records what it stored, every read can check it back.
 
-## The three container types
+---
 
-| Type | Backing | Use it when |
-|---|---|---|
-| `Table` | Heap slots, grows via the arena | You need a dynamic array/stack and don't know the size up front |
-| `TableStack` | Fixed-size array, no heap allocation for primitives | You want a stack with predictable, zero-malloc behavior and a known upper bound |
-| `TableMap` | Fixed-capacity open hash table with chaining | You need key-style lookup by pointer identity, with pluggable hashing |
+## Features
 
-All three share the same type-tagging scheme (see below), and a parallel set
-of function names: `...Table`, `...Stack`, `...Map` suffixes on otherwise
-identical operations (`bPushInt` / `bPushIntStack` / `tMapInsertInt`, etc).
+- **Table** — dynamic array variant, heap-backed, grows on demand.
+- **TableStack** — fixed-capacity, zero-malloc variant. Primitives are
+  packed directly into the slot's pointer-sized cell instead of being
+  heap-allocated, so pushing an `int` never touches `malloc`.
+- **TableList** — heap-backed doubly-linked list.
+- **StackTableList** — zero-malloc doubly-linked list, backed by a fixed
+  internal node pool with its own free list (no `malloc` per node).
+- **TableMap** — a hash map with no per-insert heap allocation: an
+  index-based arena of `TableSlot_HM` nodes, a 16-bit free list, and
+  circular doubly-linked bucket chains for collision handling.
+- Type-checked accessors (`bTryGetSlotAtTable`, `bTryMapGetTyped`, …)
+  that validate an index *and* a type tag before handing back data,
+  instead of trusting the caller.
+- Sort / filter / transform layered on top of the core array API
+  (`vSortTable`, `bFilterTable`, `vTransformTable`).
+- A large `PUSH_*` / `GET_*` macro layer so call sites read like
+  `PUSH_INT(&t, 5)` instead of `bPushInt(&t, 5)`.
 
-## Type tagging
+See **MANUAL.md** for the full API reference.
 
-Every value pushed into a container is stored next to a `short` type tag, so
-the container knows how to print it, free it, and validate access to it. Tags
-are grouped into five bands:
+---
 
-| Band | Examples | Meaning |
-|---|---|---|
-| `DATA_TYPE` (0–9) | `TYPE_INT`, `TYPE_FLOAT`, `TYPE_DOUBLE`, `TYPE_CHAR`, `TYPE_LONG`, `TYPE_SHORT` | Plain scalar values |
-| `POINTERS` (10–99) | `TYPE_INT_STAR`, `TYPE_CHAR_STAR`, `TYPE_VOID_STAR`, ... | Single-level pointers |
-| `DOUBLE_POINTERS` (100–999) | `TYPE_INT_STAR_DOUBLE`, ... | Pointer-to-pointer |
-| `TRIPLE_POINTERS` (1000–1999) | `TYPE_INT_STAR_TRIPLE`, ... | Pointer-to-pointer-to-pointer |
-| `USER_DEFINED` (2000+) | `TYPE_STRUCT`, `TYPE_UNION`, `TYPE_STRUCT_PTR`, `TYPE_UNION_PTR`, `TYPE_FUNC_PTR`, `TYPE_FILE_PTR` | Caller-defined aggregate types |
+## Supported toolchains
 
-`bIsOwnedTypeTable()` / `bIsOwnedTypeStack()` / `bIsOwnedTypeMap()` tell you,
-for any tag, whether the container heap-owns that slot's memory (and will
-free it on drop/remove) or whether it's a raw pointer the library never
-touches.
+| Toolchain      | Architectures  | Output                              |
+|----------------|----------------|--------------------------------------|
+| MSVC (`cl.exe`)| x64, x86       | `table.lib`, `table_x86.lib`         |
+| MinGW (`gcc`)  | x64, x86       | `libtable.a` (one per arch folder)   |
 
-## Quick start
+Both architectures of both toolchains can be built and installed side by
+side without conflict — see **Multi-architecture support** below.
+
+---
+
+## Installation
+
+1. Run `installer.exe`. It installs to `%LOCALAPPDATA%\TableSDK` by
+   default (no admin rights required) and updates your **user**
+   environment variables (`INCLUDE`, `LIB`, `C_INCLUDE_PATH`,
+   `CPLUS_INCLUDE_PATH`, `LIBRARY_PATH`, `PATH`) so the compiler can
+   find `table.h` and the correct prebuilt library automatically.
+2. **Open a new terminal** after installing — environment variable
+   changes only apply to terminals opened *after* the change; a
+   terminal that was already open when you ran the installer won't
+   see the update.
+3. Re-running the installer is safe and self-correcting: it removes
+   its own previous entries before re-adding the current ones, so
+   re-installing (e.g. after installing a second MinGW toolchain)
+   never leaves stale or conflicting paths behind.
+
+### MSVC
+
+```
+cl.exe HelloTable.c
+```
+
+That's it — `table.h` auto-links the correct `.lib` for you via
+`#pragma comment(lib, ...)`, selecting `table.lib` or `table_x86.lib`
+based on which architecture `cl.exe` is actually compiling for
+(`_M_X64` / `_M_IX86`), not which Native Tools prompt happens to be
+open.
+
+### MinGW
+
+```
+gcc HelloTable.c -ltable
+```
+
+`-ltable` is required — MSVC's auto-link `#pragma` is a Microsoft
+extension that GCC/Clang ignore. `LIBRARY_PATH` (set by the installer)
+points at the one MinGW library folder that matches your `gcc.exe`'s
+actual architecture, detected via `gcc -dumpmachine` at install time.
+
+### Multi-architecture support (both 32-bit and 64-bit MinGW installed)
+
+If your machine has **both** a 32-bit MinGW (e.g. classic
+`C:\MinGW\bin`) and a 64-bit MinGW (e.g. `C:\mingw64\bin`) installed,
+a bare `gcc -ltable` is inherently ambiguous — GNU `ld` resolves
+`-ltable` to the first `libtable.a` it finds on `LIBRARY_PATH` and
+does **not** skip a wrong-architecture archive the way some assume;
+picking the wrong one produces a wall of `undefined reference` errors
+that all trace back to this.
+
+To make the choice unambiguous, the installer generates four
+architecture-pinned wrapper commands (only for the toolchains it
+actually finds installed on your machine):
+
+```
+gcc32  HelloTable.c -o HelloTable.exe     # always 32-bit MinGW + x86 lib
+gcc64  HelloTable.c -o HelloTable.exe     # always 64-bit MinGW + x64 lib
+g++32  HelloTable.cpp -o HelloTable.exe   # 32-bit MinGW g++ variant
+g++64  HelloTable.cpp -o HelloTable.exe   # 64-bit MinGW g++ variant
+```
+
+Each wrapper hardcodes its own compiler's full path plus explicit
+`-I`/`-L`/`-ltable` flags, so it's correct regardless of `PATH` order,
+`LIBRARY_PATH` contents, or which toolchain a plain `gcc` currently
+resolves to. Use these instead of a bare `gcc`/`g++` whenever both
+architectures are installed and you need to pick one deliberately.
+
+---
+
+## Quick example
 
 ```c
 #include <table.h>
 
-int main(void) {
+int main(void)
+{
     Table t;
-    vGetTable(&t, /*total_slots hint*/ 16, /*arena_bytes*/ 1 << 16);
+    vGetTable(&t, 8, 0);       // 8 initial slots, no arena
 
-    bPushInt(&t, 42);
-    bPushDouble(&t, 3.14);
-    bPushChar(&t, 'x');
+    PUSH_INT(&t, 42);
+    PUSH_FLOAT(&t, 3.14f);
+    PUSH_CHAR(&t, 'x');
 
-    vPrintTable(&t);          // dumps every slot with its type name and value
-    printf("sum of ints: %d\n", iSumIntTable(&t));
+    TableSlot_DA slot;
+    TABLE_FOREACH(&t, i, slot)
+    {
+        printf("[%d] type=%s\n", i, sTypeNameTable(slot.type));
+    }
 
-    vDropTable(&t);           // frees every owned slot back to the arena
-    vDropArena();             // release the arena's backing memory (once
-                               // every Table/TableStack/TableMap is dropped)
+    vDropTable(&t);
     return 0;
 }
 ```
 
-Fixed-capacity, zero-malloc stack variant:
+---
 
-```c
-vGetTableStackDefault(s);     // declares `s` with TABLE_STACK_DEFAULT_CAPACITY
-PUSH_INT_STACK(&s, 7);
-PUSH_FLOAT_STACK(&s, 2.5f);
-vPrintTableStack(&s);
-```
+## Building from source
 
-Hash map:
-
-```c
-TableMap map;
-vFormHashMap(&map);
-
-void* key;
-tMapInsertInt(&map, 100, &key);
-
-TableSlot_HM slot;
-if (bTryMapGetTyped(&map, key, TYPE_INT, &slot))
-    printf("found: %d\n", *(int*)slot.ptr);
-
-vDropHashMap(&map);
-```
-
-## Building
-
-Prebuilt static libraries and the matching public header are produced by the
-scripts in `scripts/` and staged under `dist/` and `payload/`:
-
-| Platform / toolchain | Artifact | Status in this build |
-|---|---|---|
-| Linux (gcc) | `dist/linux/libtable.a` | ✅ present, valid archive |
-| Windows, MinGW x64 | `payload/lib/mingw/x64/libtable.a` | ✅ present, valid archive |
-| Windows, MinGW x86 | `payload/lib/mingw/x86/libtable.a` | ✅ present, valid archive |
-| Windows, MSVC x64 | `payload/lib/msvc/x64/table.lib` | ❌ **empty file — needs rebuilding** |
-| Windows, MSVC x86 | `payload/lib/msvc/x86/table.lib` | ❌ **empty file — needs rebuilding** |
-| macOS | `dist/macos/` | ⚠️ build script exists, never run/verified |
-
-If you're consuming this package as-is, don't assume the MSVC libraries
-link correctly — rebuild them from `source/table.c` with `scripts/build_msvc.bat`
-before shipping to MSVC users.
-
-To build from source directly:
-
-```sh
-# gcc / clang
-cc -c source/table.c -o table.o
-ar rcs libtable.a table.o
-
-# MSVC (from a Developer Command Prompt)
-cl /c source\table.c
-lib /OUT:table.lib table.obj
-```
-
-Include `source/table.h` (or `payload/include/table.h`, `include/table.h` —
-these are duplicates of the same header) in your project and link the
-resulting library.
-
-## Known limitations
-
-Being upfront about what hasn't been fully hardened yet:
-
-- **Strict-aliasing violation in `GET_STACK_VALUE`.** The macro
-  (`*(T*)&elem.ptr`) reads a `void*` cell through a differently-typed lvalue,
-  which is undefined behavior under strict aliasing. It works today under
-  `-O2` with mainstream compilers, but is not guaranteed to keep working under
-  a different optimizer, LTO, or a future compiler version. Not yet fixed.
-- **No thread safety.** `g_MasterArena` is a global, unsynchronized singleton.
-  Fine single-threaded; will corrupt under concurrent use from multiple
-  threads without external locking.
-- **`TYPE_STRUCT` / `TYPE_UNION` size isn't tracked on the tag.** `bCloneTable`
-  / `bFilterTable` and similar deep-copy operations can't correctly clone
-  struct/union slots without the caller separately supplying the size.
-  Struct/union values also can't be safely rehydrated on the receiving end
-  of `vForEachSlotTable` without external knowledge of the payload size.
-- **No automated test suite.** What's been verified is smoke-level: push a
-  few values, sort, sum, check the result. The arena's edge cases (coalescing
-  at the first/last chunk, overflow paths), the hash map's collision
-  handling, and sort/filter/transform under adversarial input haven't been
-  exercised under a sanitizer (ASan/UBSan).
-- **macOS is unverified.** `scripts/build_macos.sh` exists but has never been
-  run against a real macOS toolchain.
-
-## Repository layout
+`build.bat` builds whichever toolchain matches the prompt it's run
+from:
 
 ```
-source/                 canonical table.h / table.c
-include/, payload/include/   duplicate copies of table.h for packaging
-dist/, payload/lib/     prebuilt static libraries per platform (see table above)
-scripts/                per-platform build scripts (build_msvc.bat, build_mingw.bat, build_linux.sh, build_macos.sh)
-installer.cpp, unix/    Windows/Unix installer sources that embed the payload
+build.bat        (from x86 Native Tools Command Prompt for VS)  -> MSVC x86
+build.bat        (from x64 Native Tools Command Prompt for VS)  -> MSVC x64
+build.bat        (from a plain cmd.exe)                         -> MinGW x64 and/or x86
 ```
 
-See `MANUAL.docx` for the full API reference.
+Run it from all three to build every combination — it only ever adds
+to `payload\`, never removes what a previous run already staged, so
+order doesn't matter. Once at least one library exists, it builds
+`installer.exe` from whatever is currently staged.
+
+MinGW paths are configured at the top of `build.bat`:
+
+```bat
+set MINGW64_BIN=C:\mingw64\bin
+set MINGW32_BIN=C:\MinGW\bin
+```
+
+Edit these if your installs live elsewhere.
+
+---
+
+## Project layout
+
+```
+TableSDK/
+├── source/            canonical table.h / table.c (edit these)
+├── include/            synced copy used by the build
+├── src/                 synced copy used by the build
+├── dist/                intermediate per-toolchain build output
+├── payload/              staged files that get embedded into installer.exe
+├── build.bat
+├── installer.cpp / installer.rc
+└── README.md / MANUAL.md
+```
+
+---
+
+## License
+
+Not yet specified.
+
+---
+
+## More
+
+Full function-by-function reference: **MANUAL.md**
