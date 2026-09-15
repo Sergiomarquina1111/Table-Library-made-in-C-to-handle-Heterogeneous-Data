@@ -1962,9 +1962,10 @@ extern int iSumIntStack(const TableStack* obj)
     int sum = 0;
     for (int i = 0; i < obj->count; i++)
         if (obj->slots[i].type == TYPE_INT)
-            /* Reinterpret the inline cell as an int* and read through it -
-               see the "two storage styles" note at the top of this file. */
-            sum += *(int*)&obj->slots[i].ptr;
+            /* Read the inline cell via GET_STACK_VALUE (memcpy-based, not a
+               pointer-cast) - see the "two storage styles" note at the top
+               of this file. */
+            sum += GET_STACK_VALUE(obj->slots[i], int);
     return sum;
 }
 
@@ -1975,7 +1976,7 @@ extern double dSumFloatStack(const TableStack* obj)
     double sum = 0.0;
     for (int i = 0; i < obj->count; i++)
         if (obj->slots[i].type == TYPE_FLOAT)
-            sum += (double)(*(float*)&obj->slots[i].ptr);
+            sum += (double)GET_STACK_VALUE(obj->slots[i], float);
     return sum;
 }
 
@@ -1988,7 +1989,7 @@ extern bool bMinIntStack(const TableStack* obj, int* out)
     for (int i = 0; i < obj->count; i++)
     {
         if (obj->slots[i].type != TYPE_INT) continue;
-        int v = *(int*)&obj->slots[i].ptr;
+        int v = GET_STACK_VALUE(obj->slots[i], int);
         if (!found || v < best) { best = v; found = true; }
     }
     if (found) *out = best;
@@ -2004,7 +2005,7 @@ extern bool bMaxIntStack(const TableStack* obj, int* out)
     for (int i = 0; i < obj->count; i++)
     {
         if (obj->slots[i].type != TYPE_INT) continue;
-        int v = *(int*)&obj->slots[i].ptr;
+        int v = GET_STACK_VALUE(obj->slots[i], int);
         if (!found || v > best) { best = v; found = true; }
     }
     if (found) *out = best;
