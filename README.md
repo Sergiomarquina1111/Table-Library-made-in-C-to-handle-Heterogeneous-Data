@@ -196,14 +196,15 @@ TableSDK/
 └── README.md / MANUAL.md
 ```
 
----
 
-## License
-
-Not yet specified.
-
----
-
-## More
-
-Full function-by-function reference: **MANUAL.md**
+```
+Inside TableSDK folder
+|
+include/table.h         Public header (single file)
+src/table.cpp           Implementation
+scripts/                build_msvc.bat, build_mingw.bat, build_linux.sh
+linux/install.sh        System-wide Linux installer
+installer/              Win32 GUI installer source (Table.exe)
+dist/                   Build output per toolchain
+MANUAL.docx             Full API reference and troubleshooting guide
+```
